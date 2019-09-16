@@ -1,4 +1,4 @@
-# Trill
+# Trill: Touch Sensing for Makers
 
 Arduino libraries for Trill (+ examples).
 
