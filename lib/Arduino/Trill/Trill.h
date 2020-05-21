@@ -12,126 +12,146 @@
 #define TRILL_H
 
 #if (ARDUINO >= 100)
- #include "Arduino.h"
+#include "Arduino.h"
 #else
- #include "WProgram.h"
+#include "WProgram.h"
 #endif
 #include "Wire.h"
 
-#define TRILL_MODE_NORMAL	0
-#define TRILL_MODE_RAW		1
-#define TRILL_MODE_BASELINE	2
-#define TRILL_MODE_DIFF		3
+#define TRILL_SPEED_ULTRA_FAST 	0
+#define TRILL_SPEED_FAST	1
+#define TRILL_SPEED_NORMAL    	2
+#define TRILL_SPEED_SLOW	3
 
-#define TRILL_DEVICE_NONE	0
-#define TRILL_DEVICE_1D		1
-#define TRILL_DEVICE_2D		2
-
-#define TRILL_SPEED_ULTRA_FAST 0
-#define TRILL_SPEED_FAST	   1
-#define TRILL_SPEED_NORMAL     2
-#define TRILL_SPEED_SLOW	   3
- 
 
 class Trill {
-public:
-	Trill(uint8_t i2c_address, uint8_t reset_pin = 0);
+	public:
+		Trill(uint8_t i2c_address, uint8_t reset_pin = 0);
 
-	/* Initialise the hardware */
-	int begin();
+		enum Modes {
+			CENTROID = 0,
+			RAW = 1,
+			BASELINE = 2,
+			DIFF = 3
+		};
 
-	/* --- Main communication --- */
+		enum Devices {
+			TRILL_NONE = -1,
+			TRILL_UNKOWN = 0,
+			TRILL_BAR = 1,
+			TRILL_SQUARE = 2,
+			TRILL_CRAFT = 3,
+			TRILL_RING = 4,
+			TRILL_HEX = 5,
+			TRILL_FLEX = 6
+		};
 
-	/* Return the type of device attached, or 0 if none is attached. 
-	   Same as begin(), but without re-initialising the system. */
-	int identify();
+		/* Initialise the hardware */
+		int begin();
 
-	/* Return the device type already identified */
-	int deviceType();
+		/* --- Main communication --- */
 
-	/* Read the latest scan value from the sensor. Returns true on success. */
-	boolean read();
+		/* Return the type of device attached, or 0 if none is attached. 
+		   Same as begin(), but without re-initialising the system. */
+		int identify();
 
-	/* Update the baseline value on the sensor */
-	void updateBaseline();
+		/* Return the device type already identified */
+		int deviceType();
 
-	/* Reset the sensor, if reset pin is enabled */
-	void reset();
+		/* Read the latest scan value from the sensor. Returns true on success. */
+		boolean read();
 
-	/* --- Data processing --- */
+		/* Update the baseline value on the sensor */
+		void updateBaseline();
 
-	/* How many touches? < 0 means error. */
-	int numberOfTouches();
-	/* How many horizontal touches for 2D? */
-	int numberOfHorizontalTouches();
+		/* Reset the sensor, if reset pin is enabled */
+		void reset();
 
-	/* Location and size of a particular touch, ranging from 0 to N-1.
-	   Returns -1 if no such touch exists. */
-	int touchLocation(uint8_t touch_num);
-	int touchSize(uint8_t touch_num);
+		/* --- Data processing --- */
 
-	/* These methods for horizontal touches on 2D sliders */
-	int touchHorizontalLocation(uint8_t touch_num);
-	int touchHorizontalSize(uint8_t touch_num);
+		/* How many touches? < 0 means error. */
+		int numberOfTouches();
+		/* How many horizontal touches for 2D? */
+		int numberOfHorizontalTouches();
 
-	/* --- Raw data handling --- */
+		/* Location and size of a particular touch, ranging from 0 to N-1.
+		   Returns -1 if no such touch exists. */
+		int touchLocation(uint8_t touch_num);
+		int touchSize(uint8_t touch_num);
 
-	/* Request raw data; wrappers for Wire */
-	void requestRawData(uint8_t max_length = 0xFF);
-	int rawDataAvailable();
-	int rawDataRead();
+		/* These methods for horizontal touches on 2D sliders */
+		int touchHorizontalLocation(uint8_t touch_num);
+		int touchHorizontalSize(uint8_t touch_num);
 
-	/* --- Scan configuration settings --- */
-	void setMode(uint8_t mode);
-	void setScanSettings(uint8_t speed, uint8_t num_bits);
-	void setPrescaler(uint8_t prescaler);
-	void setNoiseThreshold(uint8_t threshold);
-	void setIDACValue(uint8_t value);
-	void setMinimumTouchSize(uint16_t size);
+		/* --- Raw data handling --- */
 
-private:
-	void prepareForDataRead();	
+		/* Request raw data; wrappers for Wire */
+		void requestRawData(uint8_t max_length = 0xFF);
+		int rawDataAvailable();
+		int rawDataRead();
 
-	enum {
-		kCommandNone = 0,
-		kCommandMode = 1,
-		kCommandScanSettings = 2,
-		kCommandPrescaler = 3,
-		kCommandNoiseThreshold = 4,
-		kCommandIdac = 5,
-		kCommandBaselineUpdate = 6,
-		kCommandMinimumSize = 7,
-		kCommandIdentify = 255
-	};
+		/* --- Scan configuration settings --- */
+		void setMode(uint8_t mode);
+		void setScanSettings(uint8_t speed, uint8_t num_bits);
+		void setPrescaler(uint8_t prescaler);
+		void setNoiseThreshold(uint8_t threshold);
+		void setIDACValue(uint8_t value);
+		void setMinimumTouchSize(uint16_t size);
 
-	enum {
-		kOffsetCommand = 0,
-		kOffsetData = 4
-	};
+	private:
+		void prepareForDataRead();	
 
-	enum {
-		kNormalLengthDefault = 20,
-		kNormalLengthMax = 20,
-		kNormalLength2D = 32,
-		kMaxTouchNum1D = 5,
-		kMaxTouchNum2D = 4,
-		
-		kRawLength1D = 52,
-		kRawLength2D = 60,
-		kRawLengthDefault = 60,
-		kRawLengthMax = 60
-	};
+		enum {
+			kCommandNone = 0,
+			kCommandMode = 1,
+			kCommandScanSettings = 2,
+			kCommandPrescaler = 3,
+			kCommandNoiseThreshold = 4,
+			kCommandIdac = 5,
+			kCommandBaselineUpdate = 6,
+			kCommandMinimumSize = 7,
+			kCommandIdentify = 255
+		};
 
-	uint8_t i2c_address_;	/* Address of this slider on I2C bus */
-	uint8_t reset_pin_;		/* Pin for active-high reset of sensor */
-	uint8_t device_type_;	/* Which type of device is connected, if any */
-	uint8_t firmware_version_;	/* Firmware version running on the device */
-	uint8_t mode_;			/* Which mode the device is in */
-	uint8_t last_read_loc_;	/* Which byte reads will begin from on the device */
-	uint8_t num_touches_;	/* Number of touches on last read */
-	uint8_t raw_bytes_left_; /* How many bytes still remaining to request? */
+		enum {
+			kOffsetCommand = 0,
+			kOffsetData = 4
+		};
 
-	uint8_t buffer_[kNormalLengthMax];	/* Buffer for standard response */
+		enum {
+			kMaxTouchNum1D = 5,
+			kMaxTouchNum2D = 4
+		};
+
+		enum {
+			kCentroidLengthDefault = 20,
+			kCentroidLengthRing = 24,
+			kCentroidLength2D = 32,
+			kRawLength = 60
+		};
+
+		enum {
+			kNumChannelsBar = 26,
+			kNumChannelsRing = 28,
+			kNumChannelsMax = 30
+		};
+
+		enum {
+			kRawLengthBar = 52,
+			kRawLengthHex = 60,
+			kRawLengthRing = 56
+		};
+
+		uint8_t i2c_address_;	/* Address of this slider on I2C bus */
+		uint8_t reset_pin_;		/* Pin for active-high reset of sensor */
+		uint8_t device_type_;	/* Which type of device is connected, if any */
+		uint8_t firmware_version_;	/* Firmware version running on the device */
+		uint8_t mode_;			/* Which mode the device is in */
+		uint8_t last_read_loc_;	/* Which byte reads will begin from on the device */
+		uint8_t num_touches_;	/* Number of touches on last read */
+		uint8_t raw_bytes_left_; /* How many bytes still remaining to request? */
+
+		uint8_t buffer_[kCentroidLength2D];	/* Buffer for standard response */
 };
 
 #endif /* TRILL_H */

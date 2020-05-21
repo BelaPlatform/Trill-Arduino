@@ -10,11 +10,15 @@
 
 #include "Trill.h"
 
-#define MAX_TOUCH_1D_OR_2D ((device_type_ == TRILL_DEVICE_2D ? kMaxTouchNum2D : kMaxTouchNum1D))
+#define MAX_TOUCH_1D_OR_2D ((device_type_ == TRILL_SQUARE ? kMaxTouchNum2D : kMaxTouchNum1D))
+#define RAW_LENGTH ((device_type_ == TRILL_BAR ? 2 * kNumChannelsBar \
+			: device_type_ == TRILL_HEX ? 2 * kNumChannelsMax \
+			: device_type_ == TRILL_RING ? 2 * kNumChannelsRing \
+			: kRawLength))
 
 Trill::Trill(uint8_t i2c_address, uint8_t reset_pin)
 : i2c_address_(i2c_address), reset_pin_(reset_pin),
-  device_type_(TRILL_DEVICE_NONE), firmware_version_(0),
+  device_type_(TRILL_NONE), firmware_version_(0),
   mode_(0xFF), last_read_loc_(0xFF), num_touches_(0),
   raw_bytes_left_(0)
 {
@@ -33,7 +37,7 @@ int Trill::begin() {
 	Wire.begin();
 
 	/* Put the device (assuming it exists) in normal mode */
-	setMode(TRILL_MODE_NORMAL);
+	setMode(CENTROID);
 
 	/* Wait to process the command before sending the second identify command */
 	delay(25);
@@ -57,7 +61,7 @@ int Trill::identify() {
 
 	if(Wire.available() < 3) {
 		/* Unexpected or no response; no valid device connected */
-		device_type_ = TRILL_DEVICE_NONE;
+		device_type_ = TRILL_NONE;
 		firmware_version_ = 0;
 		return device_type_;
 	}
@@ -77,13 +81,13 @@ int Trill::deviceType() {
 /* Read the latest scan value from the sensor. Returns true on success. */
 boolean Trill::read() {
 	uint8_t loc = 0;
-	uint8_t length = kNormalLengthDefault;
+	uint8_t length = kCentroidLengthDefault;
 
 	/* Set the read location to the right place if needed */
 	prepareForDataRead();
 
-	if(device_type_ == TRILL_DEVICE_2D)
-		length = kNormalLength2D;
+	if(device_type_ == TRILL_SQUARE)
+		length = kCentroidLength2D;
 
 	Wire.requestFrom(i2c_address_, length);
 	while(Wire.available()) {
@@ -104,7 +108,7 @@ boolean Trill::read() {
 	}
 	num_touches_ = loc;
 
-	if(device_type_ == TRILL_DEVICE_2D) {
+	if(device_type_ == TRILL_SQUARE) {
 		/* Look for the number of horizontal touches in 2D sliders
 		   which might be different from number of vertical touches */
 		for(loc = 0; loc < kMaxTouchNum2D; loc++) {
@@ -140,7 +144,7 @@ void Trill::reset() {
 
 /* How many touches? < 0 means error. */
 int Trill::numberOfTouches() {
-	if(mode_ != TRILL_MODE_NORMAL)
+	if(mode_ != CENTROID)
 		return 0;
 
 	/* Lower 4 bits hold number of 1-axis or vertical touches */
@@ -149,9 +153,9 @@ int Trill::numberOfTouches() {
 
 /* How many horizontal touches for 2D? */
 int Trill::numberOfHorizontalTouches() {
-	if(mode_ != TRILL_MODE_NORMAL)
+	if(mode_ != CENTROID)
 		return 0;
-	if(device_type_ != TRILL_DEVICE_2D)
+	if(device_type_ != TRILL_SQUARE)
 		return 0;
 
 	/* Upper 4 bits hold number of horizontal touches */
@@ -163,7 +167,7 @@ int Trill::numberOfHorizontalTouches() {
 int Trill::touchLocation(uint8_t touch_num) {
 	int result;
 
-	if(mode_ != TRILL_MODE_NORMAL)
+	if(mode_ != CENTROID)
 		return -1;
 	if(touch_num >= MAX_TOUCH_1D_OR_2D)
 		return -1;
@@ -177,7 +181,7 @@ int Trill::touchLocation(uint8_t touch_num) {
 int Trill::touchSize(uint8_t touch_num) {
 	int result;
 
-	if(mode_ != TRILL_MODE_NORMAL)
+	if(mode_ != CENTROID)
 		return -1;
 	if(touch_num >= MAX_TOUCH_1D_OR_2D)
 		return -1;
@@ -192,9 +196,9 @@ int Trill::touchSize(uint8_t touch_num) {
 int Trill::touchHorizontalLocation(uint8_t touch_num) {
 	int result;
 
-	if(mode_ != TRILL_MODE_NORMAL)
+	if(mode_ != CENTROID)
 		return -1;
-	if(device_type_ != TRILL_DEVICE_2D)
+	if(device_type_ != TRILL_SQUARE)
 		return -1;
 	if(touch_num >= kMaxTouchNum2D)
 		return -1;
@@ -208,9 +212,9 @@ int Trill::touchHorizontalLocation(uint8_t touch_num) {
 int Trill::touchHorizontalSize(uint8_t touch_num) {
 	int result;
 
-	if(mode_ != TRILL_MODE_NORMAL)
+	if(mode_ != CENTROID)
 		return -1;
-	if(device_type_ != TRILL_DEVICE_2D)
+	if(device_type_ != TRILL_SQUARE)
 		return -1;
 	if(touch_num >= kMaxTouchNum2D)
 		return -1;
@@ -228,16 +232,10 @@ void Trill::requestRawData(uint8_t max_length) {
 	prepareForDataRead();
 
 	if(max_length == 0xFF) {
-		/* Use default for the particular device if no length specified */
-		if(device_type_ == TRILL_DEVICE_1D)
-			length = kRawLength1D;
-		else if(device_type_ == TRILL_DEVICE_2D)
-			length = kRawLength2D;
-		else
-			length = kRawLengthDefault;
+		length = RAW_LENGTH;
 	}
-	if(length > kRawLengthMax)
-		length = kRawLengthMax;
+	if(length > kRawLength)
+		length = kRawLength;
 
 	/* The raw data might be longer than the Wire.h maximum buffer
 	 * (BUFFER_LENGTH in Wire.h).
