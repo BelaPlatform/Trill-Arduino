@@ -1,8 +1,7 @@
 
-#include "Wire.h"
 #include <Trill.h>
 
-Trill slider(24);
+Trill slider(0x30); // for Trill Craft
 
 void setup() {
   // put your setup code here, to run once:
@@ -11,7 +10,7 @@ void setup() {
   if(!slider.begin())
     Serial.println("failed to initialise slider");
    
-  slider.setMode(TRILL_MODE_DIFF);
+  slider.setMode(Trill::DIFF);
   //delay(10);
   //slider.setIDACValue(160);
 }

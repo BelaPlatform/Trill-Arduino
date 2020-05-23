@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include <Trill.h>
 
-Trill slider(24);
+Trill slider(0x20);
 boolean touchActive = false;
 
 void setup() {
@@ -11,7 +11,7 @@ void setup() {
   if(!slider.begin())
     Serial.println("failed to initialise slider");  
   
-  slider.setMode(TRILL_MODE_NORMAL);
+  slider.setMode(Trill::CENTROID);
 }
 
 void loop() {

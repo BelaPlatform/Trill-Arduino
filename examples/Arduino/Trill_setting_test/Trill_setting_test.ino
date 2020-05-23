@@ -1,8 +1,7 @@
   
-#include <Wire.h>
 #include <Trill.h>
 
-#define I2C_ADDRESS 24
+#define I2C_ADDRESS 0x30 // for Trill Craft
 
 Trill slider(I2C_ADDRESS);
 
@@ -20,7 +19,7 @@ void setup() {
   if(!slider.begin())
     Serial.println("failed to initialise slider");
     
-  slider.setMode(TRILL_MODE_DIFF);
+  slider.setMode(Trill::DIFF);
   //delay(10);
   //slider.setIDACValue(160);
 }

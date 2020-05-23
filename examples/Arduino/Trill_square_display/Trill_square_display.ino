@@ -1,7 +1,7 @@
 
 #include <Trill.h>
 
-Trill slider(24);
+Trill slider(0x28);
 boolean touchActive = false;
 
 void setup() {
