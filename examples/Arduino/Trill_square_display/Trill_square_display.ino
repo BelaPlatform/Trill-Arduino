@@ -1,5 +1,4 @@
 
-#include <Wire.h>
 #include <Trill.h>
 
 Trill slider(24);
@@ -13,10 +12,10 @@ void setup() {
   
   if(!deviceType)
     Serial.println("failed to initialise slider");  
-else if(deviceType != TRILL_DEVICE_2D)
+else if(deviceType != Trill::TRILL_SQUARE)
     Serial.println("attached device is not a 2D slider");
     
-  slider.setMode(TRILL_MODE_NORMAL);
+  slider.setMode(Trill::CENTROID);
 }
 
 void loop() {  
