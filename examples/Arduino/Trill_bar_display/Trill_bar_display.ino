@@ -1,4 +1,3 @@
-#include <Wire.h>
 #include <Trill.h>
 
 Trill slider(0x20);
