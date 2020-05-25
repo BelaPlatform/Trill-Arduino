@@ -12,9 +12,8 @@
 
 #define MAX_TOUCH_1D_OR_2D ((device_type_ == TRILL_SQUARE ? kMaxTouchNum2D : kMaxTouchNum1D))
 #define RAW_LENGTH ((device_type_ == TRILL_BAR ? 2 * kNumChannelsBar \
-			: device_type_ == TRILL_HEX ? 2 * kNumChannelsMax \
 			: device_type_ == TRILL_RING ? 2 * kNumChannelsRing \
-			: kRawLength))
+			: 2 * kNumChannelsMax))
 
 Trill::Trill(uint8_t i2c_address, uint8_t reset_pin)
 : i2c_address_(i2c_address), reset_pin_(reset_pin),
@@ -86,7 +85,7 @@ boolean Trill::read() {
 	/* Set the read location to the right place if needed */
 	prepareForDataRead();
 
-	if(device_type_ == TRILL_SQUARE)
+	if(device_type_ == TRILL_SQUARE || device_type_ == TRILL_HEX)
 		length = kCentroidLength2D;
 
 	Wire.requestFrom(i2c_address_, length);
@@ -108,7 +107,7 @@ boolean Trill::read() {
 	}
 	num_touches_ = loc;
 
-	if(device_type_ == TRILL_SQUARE) {
+	if(device_type_ == TRILL_SQUARE || device_type_ == TRILL_HEX) {
 		/* Look for the number of horizontal touches in 2D sliders
 		   which might be different from number of vertical touches */
 		for(loc = 0; loc < kMaxTouchNum2D; loc++) {
@@ -155,7 +154,7 @@ int Trill::numberOfTouches() {
 int Trill::numberOfHorizontalTouches() {
 	if(mode_ != CENTROID)
 		return 0;
-	if(device_type_ != TRILL_SQUARE)
+	if(device_type_ == TRILL_SQUARE || device_type_ == TRILL_HEX)
 		return 0;
 
 	/* Upper 4 bits hold number of horizontal touches */
@@ -198,7 +197,7 @@ int Trill::touchHorizontalLocation(uint8_t touch_num) {
 
 	if(mode_ != CENTROID)
 		return -1;
-	if(device_type_ != TRILL_SQUARE)
+	if(device_type_ == TRILL_SQUARE || device_type_ == TRILL_HEX)
 		return -1;
 	if(touch_num >= kMaxTouchNum2D)
 		return -1;
@@ -214,7 +213,7 @@ int Trill::touchHorizontalSize(uint8_t touch_num) {
 
 	if(mode_ != CENTROID)
 		return -1;
-	if(device_type_ != TRILL_SQUARE)
+	if(device_type_ == TRILL_SQUARE || device_type_ == TRILL_HEX)
 		return -1;
 	if(touch_num >= kMaxTouchNum2D)
 		return -1;
