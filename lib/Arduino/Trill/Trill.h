@@ -46,6 +46,17 @@ class Trill {
 			TRILL_FLEX = 6
 		};
 
+		/**
+		 * An array containing the valid values for the speed parameter
+		 * in setScanSettings()
+		 */
+		static constexpr uint8_t speedValues[4] = {0, 1, 2, 3};
+		/**
+		 * The maximum value for the setPrescaler() method
+		 */
+		static constexpr uint8_t prescalerMax = 8;
+
+
 		/* Initialise the hardware */
 		int begin();
 
