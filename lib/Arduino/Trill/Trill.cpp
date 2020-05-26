@@ -88,6 +88,9 @@ boolean Trill::read() {
 	if(device_type_ == TRILL_SQUARE || device_type_ == TRILL_HEX)
 		length = kCentroidLength2D;
 
+	if(device_type_ == TRILL_RING)
+		length = kCentroidLengthRing;
+
 	Wire.requestFrom(i2c_address_, length);
 	while(Wire.available()) {
 		buffer_[loc++] = Wire.read();
@@ -376,4 +379,16 @@ void Trill::prepareForDataRead() {
 
 		last_read_loc_ = kOffsetData;
 	}
+}
+
+int Trill::getButtonValue(uint8_t button_num)
+{
+	if(mode_ != CENTROID)
+		return -1;
+	if(button_num > 1)
+		return -1;
+	if(device_type_ != TRILL_RING)
+		return -1;
+
+	return (((buffer_[4*MAX_TOUCH_1D_OR_2D+2*button_num] << 8) + buffer_[4*MAX_TOUCH_1D_OR_2D+2*button_num+1]) & 0x0FFF);
 }
