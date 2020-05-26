@@ -295,6 +295,12 @@ void Trill::setMode(uint8_t mode) {
 }
 
 void Trill::setScanSettings(uint8_t speed, uint8_t num_bits) {
+	if(speed > 3)
+		speed = 3;
+	if(num_bits < 9)
+		num_bits = 9;
+	if(num_bits > 16)
+		num_bits = 16;
 	Wire.beginTransmission(i2c_address_);
 	Wire.write(kOffsetCommand);
 	Wire.write(kCommandScanSettings);
@@ -316,6 +322,10 @@ void Trill::setPrescaler(uint8_t prescaler) {
 }
 
 void Trill::setNoiseThreshold(uint8_t threshold) {
+	if(threshold > 255)
+		threshold = 255;
+	if(threshold < 0)
+		threshold = 0;
 	Wire.beginTransmission(i2c_address_);
 	Wire.write(kOffsetCommand);
 	Wire.write(kCommandNoiseThreshold);
