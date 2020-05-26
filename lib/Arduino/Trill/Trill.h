@@ -108,6 +108,7 @@ class Trill {
 		void setNoiseThreshold(uint8_t threshold);
 		void setIDACValue(uint8_t value);
 		void setMinimumTouchSize(uint16_t size);
+		void setAutoScanInterval(uint16_t interval);
 
 	private:
 		void prepareForDataRead();	
@@ -121,6 +122,7 @@ class Trill {
 			kCommandIdac = 5,
 			kCommandBaselineUpdate = 6,
 			kCommandMinimumSize = 7,
+			kCommandAutoScanInterval = 16,
 			kCommandIdentify = 255
 		};
 

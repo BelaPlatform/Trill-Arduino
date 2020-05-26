@@ -356,6 +356,17 @@ void Trill::setMinimumTouchSize(uint16_t size) {
 	last_read_loc_ = kOffsetCommand;
 }
 
+void Trill::setAutoScanInterval(uint16_t interval) {
+	Wire.beginTransmission(i2c_address_);
+	Wire.write(kOffsetCommand);
+	Wire.write(kCommandAutoScanInterval);
+	Wire.write(interval >> 8);
+	Wire.write(interval & 0xFF);
+	Wire.endTransmission();
+
+	last_read_loc_ = kOffsetCommand;
+}
+
 /* Prepare the device to read data if it is not already prepared */
 void Trill::prepareForDataRead() {
 	if(last_read_loc_ != kOffsetData) {
