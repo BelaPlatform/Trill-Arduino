@@ -39,7 +39,7 @@ class Trill {
 
 		enum Device {
 			TRILL_NONE = -1,
-			TRILL_UNKOWN = 0,
+			TRILL_UNKNOWN = 0,
 			TRILL_BAR = 1,
 			TRILL_SQUARE = 2,
 			TRILL_CRAFT = 3,
@@ -97,7 +97,7 @@ class Trill {
 		/* --- Data processing --- */
 
 		/* Button value for Ring? */
-		int getButtonValue(uint8_t button_num)
+		int getButtonValue(uint8_t button_num);
 
 		/* How many touches? < 0 means error. */
 		int numberOfTouches();

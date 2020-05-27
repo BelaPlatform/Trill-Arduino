@@ -44,8 +44,8 @@ int Trill::begin(Device device, Mode mode, uint8_t i2c_address) {
 	}
 
 	/* Check for wrong device type */
-	if(UNKNOWN != device && device_type_ != device) {
-		device_type_ = NONE;
+	if(TRILL_UNKNOWN != device && device_type_ != device) {
+		device_type_ = TRILL_NONE;
 		return -3;
 	}
 
