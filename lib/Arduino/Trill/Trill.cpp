@@ -15,9 +15,8 @@
 			: device_type_ == TRILL_RING ? 2 * kNumChannelsRing \
 			: 2 * kNumChannelsMax))
 
-Trill::Trill(uint8_t i2c_address)
-: i2c_address_(i2c_address),
-  device_type_(TRILL_NONE), firmware_version_(0),
+Trill::Trill()
+: device_type_(TRILL_NONE), firmware_version_(0),
   mode_(0xFF), last_read_loc_(0xFF), num_touches_(0),
   raw_bytes_left_(0)
 {
@@ -25,19 +24,50 @@ Trill::Trill(uint8_t i2c_address)
 
 /* Initialise the hardware. Returns the type of device attached, or 0
    if none is attached. */
-int Trill::begin() {
+int Trill::begin(Device device, Mode mode, uint8_t i2c_address) {
+
+	if(128 <= i2c_address)
+		i2c_address = trillDefaults[device+1].address;
+
+	/* Unknown default address */
+	if(128 <= i2c_address) {
+		return  -2;
+	}
 
 	/* Start I2C */
 	Wire.begin();
 
-	/* Put the device (assuming it exists) in normal mode */
-	setMode(CENTROID);
+	/* Check the type of device attached */
+	if(identify() != 0) {
+		// Unable to identify device
+		return 2;
+	}
+
+	/* Check for wrong device type */
+	if(UNKNOWN != device && device_type_ != device) {
+		device_type_ = NONE;
+		return -3;
+	}
+
+	/* Check for device mode */
+	if(AUTO == mode)
+		mode = trillDefaults[device+1].mode;
+	if(AUTO == mode) {
+		return -1;
+	}
+
+	/* Put the device in the correspondent mode */
+	setMode(mode);
+
+	/* Set default scan settings */
+	setScanSettings(0, 12);
+
+	updateBaseline();
 
 	/* Wait to process the command before sending the second identify command */
 	delay(25);
 
-	/* Check the type of device attached */
-	return identify();
+	return 0;
 }
 
 /* Return the type of device attached, or 0 if none is attached. */

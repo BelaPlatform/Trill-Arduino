@@ -26,7 +26,7 @@
 
 class Trill {
 	public:
-		Trill(uint8_t i2c_address);
+		Trill();
 
 		enum Mode {
 			AUTO = -1,
@@ -77,7 +77,7 @@ class Trill {
 
 
 		/* Initialise the hardware */
-		int begin();
+		int begin(Device device, Mode mode = AUTO, uint8_t i2c_address = 255);
 
 		/* --- Main communication --- */
 
