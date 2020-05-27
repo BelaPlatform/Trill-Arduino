@@ -15,8 +15,8 @@
 			: device_type_ == TRILL_RING ? 2 * kNumChannelsRing \
 			: 2 * kNumChannelsMax))
 
-Trill::Trill(uint8_t i2c_address, uint8_t reset_pin)
-: i2c_address_(i2c_address), reset_pin_(reset_pin),
+Trill::Trill(uint8_t i2c_address)
+: i2c_address_(i2c_address),
   device_type_(TRILL_NONE), firmware_version_(0),
   mode_(0xFF), last_read_loc_(0xFF), num_touches_(0),
   raw_bytes_left_(0)
@@ -26,11 +26,6 @@ Trill::Trill(uint8_t i2c_address, uint8_t reset_pin)
 /* Initialise the hardware. Returns the type of device attached, or 0
    if none is attached. */
 int Trill::begin() {
-	/* De-assert reset if it is being used */
-	if(reset_pin_ != 0) {
-		pinMode(reset_pin_, OUTPUT);
-		digitalWrite(reset_pin_, LOW);
-	}
 
 	/* Start I2C */
 	Wire.begin();
@@ -132,16 +127,6 @@ void Trill::updateBaseline() {
 	Wire.endTransmission();
 
 	last_read_loc_ = kOffsetCommand;
-}
-
-/* Reset the sensor, if reset pin is enabled */
-void Trill::reset() {
-	if(reset_pin_ == 0)
-		return;
-	/* Assert reset, hold for 10us, release */
-	digitalWrite(reset_pin_, HIGH);
-	delayMicroseconds(10);
-	digitalWrite(reset_pin_, LOW);
 }
 
 /* How many touches? < 0 means error. */

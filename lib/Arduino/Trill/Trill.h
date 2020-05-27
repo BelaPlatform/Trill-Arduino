@@ -26,7 +26,7 @@
 
 class Trill {
 	public:
-		Trill(uint8_t i2c_address, uint8_t reset_pin = 0);
+		Trill(uint8_t i2c_address);
 
 		enum Mode {
 			AUTO = -1,
@@ -93,9 +93,6 @@ class Trill {
 
 		/* Update the baseline value on the sensor */
 		void updateBaseline();
-
-		/* Reset the sensor, if reset pin is enabled */
-		void reset();
 
 		/* --- Data processing --- */
 
@@ -178,7 +175,6 @@ class Trill {
 		};
 
 		uint8_t i2c_address_;	/* Address of this slider on I2C bus */
-		uint8_t reset_pin_;		/* Pin for active-high reset of sensor */
 		uint8_t device_type_;	/* Which type of device is connected, if any */
 		uint8_t firmware_version_;	/* Firmware version running on the device */
 		uint8_t mode_;			/* Which mode the device is in */
