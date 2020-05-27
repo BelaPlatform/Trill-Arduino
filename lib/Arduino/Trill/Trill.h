@@ -28,14 +28,16 @@ class Trill {
 	public:
 		Trill(uint8_t i2c_address, uint8_t reset_pin = 0);
 
-		enum Modes {
+		enum Mode {
+			AUTO = -1,
 			CENTROID = 0,
 			RAW = 1,
 			BASELINE = 2,
-			DIFF = 3
+			DIFF = 3,
+			NUM_MODES = 5
 		};
 
-		enum Devices {
+		enum Device {
 			TRILL_NONE = -1,
 			TRILL_UNKOWN = 0,
 			TRILL_BAR = 1,
@@ -43,7 +45,7 @@ class Trill {
 			TRILL_CRAFT = 3,
 			TRILL_RING = 4,
 			TRILL_HEX = 5,
-			TRILL_FLEX = 6
+			TRILL_NUM_DEVICES = 7
 		};
 
 		/**
