@@ -48,6 +48,23 @@ class Trill {
 			TRILL_NUM_DEVICES = 7
 		};
 
+		struct TrillDefaults
+		{
+			Trill::Device device;
+			Trill::Mode mode;
+			uint8_t address;
+		};
+
+		struct TrillDefaults trillDefaults[TRILL_NUM_DEVICES] = {
+			{TRILL_NONE, AUTO, 0xFF},
+			{TRILL_UNKNOWN, AUTO, 0xFF},
+			{TRILL_BAR, CENTROID, 0x20},
+			{TRILL_SQUARE, CENTROID, 0x28},
+			{TRILL_CRAFT, DIFF, 0x30},
+			{TRILL_RING, CENTROID, 0x38},
+			{TRILL_HEX, CENTROID, 0x40}
+		};
+
 		/**
 		 * An array containing the valid values for the speed parameter
 		 * in setScanSettings()
