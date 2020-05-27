@@ -17,7 +17,7 @@
 
 Trill::Trill()
 : device_type_(TRILL_NONE), firmware_version_(0),
-  mode_(0xFF), last_read_loc_(0xFF), num_touches_(0),
+  mode_(AUTO), last_read_loc_(0xFF), num_touches_(0),
   raw_bytes_left_(0)
 {
 }
@@ -91,14 +91,9 @@ int Trill::identify() {
 	}
 
 	Wire.read();	// Discard first input
-	device_type_ = Wire.read();
+	device_type_ = (Device)Wire.read();
 	firmware_version_ = Wire.read();
 
-	return device_type_;
-}
-
-/* Return the type of device attached gathered from a previous call to identify() */
-int Trill::deviceType() {
 	return device_type_;
 }
 
@@ -160,7 +155,7 @@ void Trill::updateBaseline() {
 }
 
 /* How many touches? < 0 means error. */
-int Trill::numberOfTouches() {
+unsigned int Trill::getNumTouches() {
 	if(mode_ != CENTROID)
 		return 0;
 
@@ -169,7 +164,7 @@ int Trill::numberOfTouches() {
 }
 
 /* How many horizontal touches for 2D? */
-int Trill::numberOfHorizontalTouches() {
+unsigned int Trill::getNumHorizontalTouches() {
 	if(mode_ != CENTROID)
 		return 0;
 	if(device_type_ == TRILL_SQUARE || device_type_ == TRILL_HEX)
@@ -301,7 +296,7 @@ int Trill::rawDataRead() {
 }
 
 /* Scan configuration settings */
-void Trill::setMode(uint8_t mode) {
+void Trill::setMode(Mode mode) {
 	Wire.beginTransmission(i2c_address_);
 	Wire.write(kOffsetCommand);
 	Wire.write(kCommandMode);
@@ -406,4 +401,40 @@ int Trill::getButtonValue(uint8_t button_num)
 		return -1;
 
 	return (((buffer_[4*MAX_TOUCH_1D_OR_2D+2*button_num] << 8) + buffer_[4*MAX_TOUCH_1D_OR_2D+2*button_num+1]) & 0x0FFF);
+}
+
+unsigned int Trill::getNumChannels()
+{
+	switch(device_type_) {
+		case TRILL_BAR: return kNumChannelsBar;
+		case TRILL_RING: return kNumChannelsRing;
+		default: return kNumChannelsMax;
+	}
+}
+
+bool Trill::is1D()
+{
+	if(CENTROID != mode_)
+		return false;
+	switch(device_type_) {
+		case TRILL_BAR:
+		case TRILL_RING:
+		case TRILL_CRAFT:
+			return true;
+		default:
+			return false;
+	}
+}
+
+bool Trill::is2D()
+{
+	if(CENTROID != mode_)
+		return false;
+	switch(device_type_) {
+		case TRILL_SQUARE:
+		case TRILL_HEX:
+			return true;
+		default:
+			return false;
+	}
 }

@@ -85,8 +85,40 @@ class Trill {
 		   Same as begin(), but without re-initialising the system. */
 		int identify();
 
+		/**
+		 * Does the device have one axis of position sensing?
+		 *
+		 * @return `true` if the device has one axis of position sensing
+		 * and is set in #CENTROID mode, `false`
+		 * otherwise.
+		 */
+		bool is1D();
+		/**
+		 * Does the device have two axes of position sensing?
+		 *
+		 * @return `true` if the device has two axes of position sensing
+		 * and is set in #CENTROID mode, `false`
+		 * otherwise.
+		 */
+		bool is2D();
+
 		/* Return the device type already identified */
-		int deviceType();
+		Device deviceType() { return device_type_; };
+
+		/* Return firmware version */
+		int firmwareVersion() { return firmware_version_; }
+
+		/* Get the mode that the device is currently in */
+		Mode getMode() { return mode_; }
+
+		/* Get the current address of the device */
+		uint8_t getAddress() { return i2c_address_; }
+
+		/* Get the number of capacitive channels on the device */
+		unsigned int getNumChannels();
+
+		/* Return the number of "button" channels on the device */
+		unsigned int getNumButtons() { return 2 * (getMode() == CENTROID && TRILL_RING == deviceType());};
 
 		/* Read the latest scan value from the sensor. Returns true on success. */
 		boolean read();
@@ -100,9 +132,9 @@ class Trill {
 		int getButtonValue(uint8_t button_num);
 
 		/* How many touches? < 0 means error. */
-		int numberOfTouches();
+		unsigned int getNumTouches();
 		/* How many horizontal touches for 2D? */
-		int numberOfHorizontalTouches();
+		unsigned int getNumHorizontalTouches();
 
 		/* Location and size of a particular touch, ranging from 0 to N-1.
 		   Returns -1 if no such touch exists. */
@@ -121,7 +153,7 @@ class Trill {
 		int rawDataRead();
 
 		/* --- Scan configuration settings --- */
-		void setMode(uint8_t mode);
+		void setMode(Mode mode);
 		void setScanSettings(uint8_t speed, uint8_t num_bits);
 		void setPrescaler(uint8_t prescaler);
 		void setNoiseThreshold(uint8_t threshold);
@@ -175,9 +207,9 @@ class Trill {
 		};
 
 		uint8_t i2c_address_;	/* Address of this slider on I2C bus */
-		uint8_t device_type_;	/* Which type of device is connected, if any */
+		Device device_type_;	/* Which type of device is connected, if any */
 		uint8_t firmware_version_;	/* Firmware version running on the device */
-		uint8_t mode_;			/* Which mode the device is in */
+		Mode mode_;			/* Which mode the device is in */
 		uint8_t last_read_loc_;	/* Which byte reads will begin from on the device */
 		uint8_t num_touches_;	/* Number of touches on last read */
 		uint8_t raw_bytes_left_; /* How many bytes still remaining to request? */
