@@ -34,6 +34,8 @@ int Trill::begin(Device device, Mode mode, uint8_t i2c_address) {
 		return  -2;
 	}
 
+	i2c_address_ = i2c_address;
+
 	/* Start I2C */
 	Wire.begin();
 
@@ -94,7 +96,7 @@ int Trill::identify() {
 	device_type_ = (Device)Wire.read();
 	firmware_version_ = Wire.read();
 
-	return device_type_;
+	return 0;
 }
 
 /* Read the latest scan value from the sensor. Returns true on success. */
