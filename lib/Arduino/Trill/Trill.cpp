@@ -167,9 +167,7 @@ unsigned int Trill::getNumTouches() {
 
 /* How many horizontal touches for 2D? */
 unsigned int Trill::getNumHorizontalTouches() {
-	if(mode_ != CENTROID)
-		return 0;
-	if(device_type_ == TRILL_SQUARE || device_type_ == TRILL_HEX)
+	if(!is2D())
 		return 0;
 
 	/* Upper 4 bits hold number of horizontal touches */
@@ -210,9 +208,7 @@ int Trill::touchSize(uint8_t touch_num) {
 int Trill::touchHorizontalLocation(uint8_t touch_num) {
 	int result;
 
-	if(mode_ != CENTROID)
-		return -1;
-	if(device_type_ == TRILL_SQUARE || device_type_ == TRILL_HEX)
+	if(!is2D())
 		return -1;
 	if(touch_num >= kMaxTouchNum2D)
 		return -1;
@@ -226,9 +222,7 @@ int Trill::touchHorizontalLocation(uint8_t touch_num) {
 int Trill::touchHorizontalSize(uint8_t touch_num) {
 	int result;
 
-	if(mode_ != CENTROID)
-		return -1;
-	if(device_type_ == TRILL_SQUARE || device_type_ == TRILL_HEX)
+	if(!is2D())
 		return -1;
 	if(touch_num >= kMaxTouchNum2D)
 		return -1;
