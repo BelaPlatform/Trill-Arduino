@@ -1,16 +1,18 @@
 #include <Trill.h>
 
-Trill slider(0x20);
+Trill slider;
 boolean touchActive = false;
 
 void setup() {
   // Initialise serial and touch sensor
   Serial.begin(115200);
-  
-  if(!slider.begin())
+  int ret = slider.begin(Trill::TRILL_BAR);
+  if(ret != 0) {
     Serial.println("failed to initialise slider");  
-  
-  slider.setMode(Trill::CENTROID);
+    Serial.println("Error code: ");
+    Serial.println(ret);
+    Serial.println("\n");
+  }
 }
 
 void loop() {
@@ -18,8 +20,8 @@ void loop() {
   delay(50);
   slider.read();
   
-  if(slider.numberOfTouches() > 0) {
-    for(int i = 0; i < slider.numberOfTouches(); i++) {
+  if(slider.getNumTouches() > 0) {
+    for(int i = 0; i < slider.getNumTouches(); i++) {
         Serial.print(slider.touchLocation(i));
         Serial.print(" ");
         Serial.print(slider.touchSize(i));
