@@ -1,14 +1,14 @@
 #include <Trill.h>
 
-Trill slider;
+Trill trillSensor;
 boolean touchActive = false;
 
 void setup() {
   // Initialise serial and touch sensor
   Serial.begin(115200);
-  int ret = slider.begin(Trill::TRILL_BAR);
+  int ret = trillSensor.begin(Trill::TRILL_BAR);
   if(ret != 0) {
-    Serial.println("failed to initialise slider");  
+    Serial.println("failed to initialise trillSensor");
     Serial.println("Error code: ");
     Serial.println(ret);
     Serial.println("\n");
@@ -18,13 +18,13 @@ void setup() {
 void loop() {
   // Read 20 times per second
   delay(50);
-  slider.read();
+  trillSensor.read();
   
-  if(slider.getNumTouches() > 0) {
-    for(int i = 0; i < slider.getNumTouches(); i++) {
-        Serial.print(slider.touchLocation(i));
+  if(trillSensor.getNumTouches() > 0) {
+    for(int i = 0; i < trillSensor.getNumTouches(); i++) {
+        Serial.print(trillSensor.touchLocation(i));
         Serial.print(" ");
-        Serial.print(slider.touchSize(i));
+        Serial.print(trillSensor.touchSize(i));
         Serial.print(" ");
     }
     Serial.println("");

@@ -1,44 +1,41 @@
-
 #include <Trill.h>
 
-Trill slider(0x28);
+Trill trillSensor;
 boolean touchActive = false;
 
 void setup() {
   // Initialise serial and touch sensor
   Serial.begin(115200);
-  
-  int deviceType = slider.begin();
-  
-  if(!deviceType)
-    Serial.println("failed to initialise slider");  
-else if(deviceType != Trill::TRILL_SQUARE)
-    Serial.println("attached device is not a 2D slider");
-    
-  slider.setMode(Trill::CENTROID);
+  int ret = trillSensor.begin(Trill::TRILL_SQUARE);
+  if(ret != 0) {
+    Serial.println("failed to initialise trillSensor");
+    Serial.println("Error code: ");
+    Serial.println(ret);
+    Serial.println("\n");
+  }
 }
 
 void loop() {  
   // Read 20 times per second
   delay(50);
-  slider.read();
+  trillSensor.read();
   
-  if(slider.numberOfTouches() > 0) {
-    Serial.print(slider.numberOfTouches());
+  if(trillSensor.getNumTouches() > 0) {
+    Serial.print(trillSensor.getNumTouches());
     Serial.print(" ");
-    Serial.print(slider.numberOfHorizontalTouches());
+    Serial.print(trillSensor.getNumHorizontalTouches());
     Serial.print(" ");
     
-    for(int i = 0; i < slider.numberOfTouches(); i++) {
-        Serial.print(slider.touchLocation(i));
+    for(int i = 0; i < trillSensor.getNumTouches(); i++) {
+        Serial.print(trillSensor.touchLocation(i));
         Serial.print(" ");
-        Serial.print(slider.touchSize(i));
+        Serial.print(trillSensor.touchSize(i));
         Serial.print(" ");
     }
-    for(int i = 0; i < slider.numberOfHorizontalTouches(); i++) {
-        Serial.print(slider.touchHorizontalLocation(i));
+    for(int i = 0; i < trillSensor.getNumHorizontalTouches(); i++) {
+        Serial.print(trillSensor.touchHorizontalLocation(i));
         Serial.print(" ");
-        Serial.print(slider.touchHorizontalSize(i));
+        Serial.print(trillSensor.touchHorizontalSize(i));
         Serial.print(" ");
     }
     
