@@ -1,6 +1,6 @@
-/*****************************
+/*
  * Trill library for Arduino
- * (c) 2019 Andrew McPherson
+ * (c) 2020 bela.io
  *
  * This library communicates with the Trill sensors
  * using I2C.
