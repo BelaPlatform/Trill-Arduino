@@ -40,21 +40,26 @@ void loop() {
         Serial.print("setting prescaler to ");
         Serial.println(commandValue.toInt());
         trillSensor.setPrescaler(commandValue.toInt());
+        gLastMillis = millis();  // Give 100ms for the chip to catch up
       } else if(command == "baseline") {
-        Serial.println("updatint baseline");
+        Serial.println("updating baseline");
         trillSensor.updateBaseline();
+        gLastMillis = millis();  // Give 100ms for the chip to catch up
       } else if(command == "noiseThreshold") {
         Serial.print("setting noise threshold to ");
         Serial.println(commandValue.toInt());
         trillSensor.setNoiseThreshold(commandValue.toInt());
+        gLastMillis = millis();  // Give 100ms for the chip to catch up
       } else if(command == "numBits") {
         Serial.print("setting numBits to ");
         Serial.println(commandValue.toInt());
         trillSensor.setScanSettings(0, commandValue.toInt());
+        gLastMillis = millis();  // Give 100ms for the chip to catch up
       } else if(command == "mode") {
         Serial.print("setting mode to ");
         Serial.println(commandValue);
         trillSensor.setMode(modeFromString(commandValue));
+        gLastMillis = millis();  // Give 100ms for the chip to catch up
       } else {
         Serial.println("unknown command");
       }
