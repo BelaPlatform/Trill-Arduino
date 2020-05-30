@@ -102,6 +102,8 @@ class Trill {
 		 */
 		bool is2D();
 
+		static Device probe(uint8_t i2c_adress);
+
 		/* Return the device type already identified */
 		Device deviceType() { return device_type_; };
 
