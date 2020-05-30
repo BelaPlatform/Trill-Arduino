@@ -9,9 +9,8 @@ void setup() {
   int ret = trillSensor.begin(Trill::TRILL_SQUARE);
   if(ret != 0) {
     Serial.println("failed to initialise trillSensor");
-    Serial.println("Error code: ");
+    Serial.print("Error code: ");
     Serial.println(ret);
-    Serial.println("\n");
   }
 }
 
