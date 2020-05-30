@@ -77,7 +77,7 @@ class Trill {
 
 
 		/* Initialise the hardware */
-		int begin(Device device, Mode mode = AUTO, uint8_t i2c_address = 255);
+		int begin(Device device, uint8_t i2c_address = 255);
 
 		/* --- Main communication --- */
 

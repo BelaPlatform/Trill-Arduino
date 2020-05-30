@@ -24,7 +24,7 @@ Trill::Trill()
 
 /* Initialise the hardware. Returns the type of device attached, or 0
    if none is attached. */
-int Trill::begin(Device device, Mode mode, uint8_t i2c_address) {
+int Trill::begin(Device device, uint8_t i2c_address) {
 
 	if(128 <= i2c_address)
 		i2c_address = trillDefaults[device+1].address;
@@ -52,8 +52,7 @@ int Trill::begin(Device device, Mode mode, uint8_t i2c_address) {
 	}
 
 	/* Check for device mode */
-	if(AUTO == mode)
-		mode = trillDefaults[device+1].mode;
+	Mode mode = trillDefaults[device+1].mode;
 	if(AUTO == mode) {
 		return -1;
 	}
