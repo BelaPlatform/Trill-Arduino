@@ -434,16 +434,3 @@ bool Trill::is2D()
 			return false;
 	}
 }
-
-Trill::Device probe(uint8_t i2c_adresss) {
-	Trill t;
-	/* Start I2C */
-	Wire.begin();
-
-	/* Check the type of device attached */
-	if(t.identify() != 0) {
-		// Unable to identify device
-		return Trill::TRILL_NONE;
-	}
-	return t.deviceType();
-}

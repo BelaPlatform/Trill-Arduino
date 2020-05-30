@@ -102,7 +102,19 @@ class Trill {
 		 */
 		bool is2D();
 
-		static Device probe(uint8_t i2c_adress);
+		static Device probe(uint8_t i2c_address) {
+			Trill t;
+
+			/* Start I2C */
+			t.begin(Trill::TRILL_UNKNOWN, Trill::AUTO, i2c_address);
+
+			/* Check the type of device attached */
+			if(t.identify() != 0) {
+				// Unable to identify device
+				return Trill::TRILL_NONE;
+			}
+			return t.deviceType();
+		}
 
 		/* Return the device type already identified */
 		Device deviceType() { return device_type_; };
