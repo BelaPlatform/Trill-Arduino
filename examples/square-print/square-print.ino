@@ -1,30 +1,41 @@
-#include <Trill.h>
+/*
+ ____  _____ _        _
+| __ )| ____| |      / \
+|  _ \|  _| | |     / _ \
+| |_) | |___| |___ / ___ \
+|____/|_____|_____/_/   \_\
+http://bela.io
 
-Trill trillSensor;
-boolean touchActive = false;
+\example square-print
 
-void setup() {
-  // Initialise serial and touch sensor
-  Serial.begin(115200);
-  int ret = trillSensor.begin(Trill::TRILL_SQUARE);
-  if(ret != 0) {
-    Serial.println("failed to initialise trillSensor");
-    Serial.print("Error code: ");
-    Serial.println(ret);
-  }
-}
+Trill Square Print
+==================
 
-void loop() {  
+This is an example of how to communicate with the Trill Square
+sensor using the Trill Arduino library.
+
+The sensor is set to Centroid mode and 2D touch location and size
+printed to the serial port.
+
+The accompanying Processing sketch, `TrillSquareDisplay.pde`, listens for
+touch information on the Arduino serial port* and displays it in a
+render of a Trill Square.
+
+*NOTE: you may need to update the Processing port number (gPortNumber)
+to match that of your Arduino.
+*/
+
+void loop() {
   // Read 20 times per second
   delay(50);
   trillSensor.read();
-  
+
   if(trillSensor.getNumTouches() > 0) {
     Serial.print(trillSensor.getNumTouches());
     Serial.print(" ");
     Serial.print(trillSensor.getNumHorizontalTouches());
     Serial.print(" ");
-    
+
     for(int i = 0; i < trillSensor.getNumTouches(); i++) {
         Serial.print(trillSensor.touchLocation(i));
         Serial.print(" ");
@@ -37,13 +48,13 @@ void loop() {
         Serial.print(trillSensor.touchHorizontalSize(i));
         Serial.print(" ");
     }
-    
+
     Serial.println("");
     touchActive = true;
   }
   else if(touchActive) {
     // Print a single line when touch goes off
-    Serial.println("0 0");   
-    touchActive = false; 
+    Serial.println("0 0");
+    touchActive = false;
   }
 }

@@ -2,6 +2,18 @@
 #include <Trill.h>
 
 /*
+ ____  _____ _        _
+| __ )| ____| |      / \
+|  _ \|  _| | |     / _ \
+| |_) | |___| |___ / ___ \
+|____/|_____|_____/_/   \_\
+http://bela.io
+
+\example raw-print-multi
+
+Trill Print Multiple
+====================
+
 This is a example of using multiple trill sensors with a single Arduino board.
 The I2C pins of all the sensors are connected together (SCL with SCL, SDA with SDA).
 Each sensor has a unique address. Here is the table of address for each sensor type,
@@ -17,7 +29,6 @@ the first column is the default address:
 
 In this example the sensor readings are printed to the console as raw values using the
 `rawDataRead()` method.
-
 */
 
 Trill trillBar; // for Trill Bar

@@ -1,3 +1,22 @@
+/*
+ ____  _____ _        _
+| __ )| ____| |      / \
+|  _ \|  _| | |     / _ \
+| |_) | |___| |___ / ___ \
+|____/|_____|_____/_/   \_\
+http://bela.io
+
+\example craft-print
+
+Trill Craft Print
+=================
+
+This is an example of how to communicate with the Trill Craft
+sensor using the Trill Arduino library.
+
+The sensor is set to Differential mode and readings from each of the
+capacitive connections on the sensor ar eprinted to the serial port.
+*/
 
 #include <Trill.h>
 
@@ -18,7 +37,7 @@ void loop() {
   // put your main code here, to run repeatedly:
   delay(100);
   trillSensor.requestRawData();
-   
+
   if(trillSensor.rawDataAvailable() > 0) {
     while(trillSensor.rawDataAvailable() > 0) {
       int data = trillSensor.rawDataRead();
