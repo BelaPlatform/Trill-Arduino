@@ -109,12 +109,12 @@ void loop() {
         Serial.println("updating baseline");
         trillSensor.updateBaseline();
         gLastMillis = millis();  // Give 100ms for the chip to catch up
-      } else if(command == "noiseThreshold") {
+      } else if(command == "threshold") {
         Serial.print("setting noise threshold to ");
         Serial.println(commandValue.toInt());
         trillSensor.setNoiseThreshold(commandValue.toInt());
         gLastMillis = millis();  // Give 100ms for the chip to catch up
-      } else if(command == "numBits") {
+      } else if(command == "bits") {
         Serial.print("setting numBits to ");
         Serial.println(commandValue.toInt());
         trillSensor.setScanSettings(0, commandValue.toInt());
