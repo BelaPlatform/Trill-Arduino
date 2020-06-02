@@ -106,7 +106,7 @@ class Trill {
 			Trill t;
 
 			/* Start I2C */
-			t.begin(Trill::TRILL_UNKNOWN, Trill::AUTO, i2c_address);
+			t.begin(Trill::TRILL_UNKNOWN, i2c_address);
 
 			/* Check the type of device attached */
 			if(t.identify() != 0) {
