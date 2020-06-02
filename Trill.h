@@ -145,7 +145,7 @@ class Trill {
 		/* Button value for Ring? */
 		int getButtonValue(uint8_t button_num);
 
-		/* How many touches? < 0 means error. */
+		/* How many touches? */
 		unsigned int getNumTouches();
 		/* How many horizontal touches for 2D? */
 		unsigned int getNumHorizontalTouches();
