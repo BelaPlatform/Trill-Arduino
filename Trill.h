@@ -81,7 +81,7 @@ class Trill {
 
 		/* --- Main communication --- */
 
-		/* Return the type of device attached, or 0 if none is attached. 
+		/* Return the type of device attached, or 0 if none is attached.
 		   Same as begin(), but without re-initialising the system. */
 		int identify();
 
@@ -176,7 +176,7 @@ class Trill {
 		void setAutoScanInterval(uint16_t interval);
 
 	private:
-		void prepareForDataRead();	
+		void prepareForDataRead();
 
 		enum {
 			kCommandNone = 0,
