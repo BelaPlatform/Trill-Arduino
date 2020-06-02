@@ -25,6 +25,11 @@ render of a Trill Square.
 to match that of your Arduino.
 */
 
+#include <Trill.h>
+
+Trill trillSensor;
+boolean touchActive = false;
+
 void loop() {
   // Read 20 times per second
   delay(50);
