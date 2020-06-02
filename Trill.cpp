@@ -234,7 +234,7 @@ int Trill::touchHorizontalSize(uint8_t touch_num) {
 
 /* Request raw data; wrappers for Wire */
 void Trill::requestRawData(uint8_t max_length) {
-	uint8_t length;
+	uint8_t length = 0;
 
 	prepareForDataRead();
 
