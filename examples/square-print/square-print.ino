@@ -30,6 +30,17 @@ to match that of your Arduino.
 Trill trillSensor;
 boolean touchActive = false;
 
+void setup() {
+  // Initialise serial and touch sensor
+  Serial.begin(115200);
+  int ret = trillSensor.begin(Trill::TRILL_SQUARE);
+  if(ret != 0) {
+    Serial.println("failed to initialise trillSensor");
+    Serial.print("Error code: ");
+    Serial.println(ret);
+  }
+}
+
 void loop() {
   // Read 20 times per second
   delay(50);
