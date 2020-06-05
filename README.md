@@ -1,7 +1,5 @@
 # Trill: Touch Sensing for Makers
 
-# Trill: Touch Sensing for Makers
-
 Trill sensors bring beautiful touch interaction to digital projects. Trill was [funded on Kickstarter in 2019](https://www.kickstarter.com/projects/423153472/trill-touch-sensing-for-makers), and Trill sensors are available now in the [Bela Shop](https://shop.bela.io/collections/trill).
 
 ## Trill Libraries and Examples
