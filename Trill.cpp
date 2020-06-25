@@ -10,6 +10,11 @@
 
 #include "Trill.h"
 
+// some implementations of Wire (e.g.: Particle OS) do not define BUFFER_LENGTH
+#ifndef BUFFER_LENGTH
+#define BUFFER_LENGTH 32
+#endif // BUFFER_LENGTH
+
 #define MAX_TOUCH_1D_OR_2D ((device_type_ == TRILL_SQUARE ? kMaxTouchNum2D : kMaxTouchNum1D))
 #define RAW_LENGTH ((device_type_ == TRILL_BAR ? 2 * kNumChannelsBar \
 			: device_type_ == TRILL_RING ? 2 * kNumChannelsRing \
