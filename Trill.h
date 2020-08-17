@@ -65,6 +65,7 @@ class Trill {
 			{TRILL_HEX, CENTROID, 0x40}
 		};
 
+		static constexpr uint8_t interCommandDelay = 15;
 		/**
 		 * An array containing the valid values for the speed parameter
 		 * in setScanSettings()

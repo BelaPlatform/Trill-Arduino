@@ -64,14 +64,14 @@ int Trill::begin(Device device, uint8_t i2c_address) {
 
 	/* Put the device in the correspondent mode */
 	setMode(mode);
+	delay(interCommandDelay);
 
 	/* Set default scan settings */
 	setScanSettings(0, 12);
+	delay(interCommandDelay);
 
 	updateBaseline();
-
-	/* Wait to process the command before sending the second identify command */
-	delay(25);
+	delay(interCommandDelay); // not really needed, but it ensures the first command the user sends after calling setup() will be adequately timed. Hopefully this is not a source of confusion...
 
 	return 0;
 }
