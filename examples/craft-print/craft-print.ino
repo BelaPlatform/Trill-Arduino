@@ -38,7 +38,6 @@ void loop() {
   delay(100);
   trillSensor.requestRawData();
 
-  if(trillSensor.rawDataAvailable() > 0) {
     while(trillSensor.rawDataAvailable() > 0) {
       int data = trillSensor.rawDataRead();
       if(data < 1000)
@@ -51,5 +50,4 @@ void loop() {
       Serial.print(" ");
     }
     Serial.println("");
-  }
 }
