@@ -133,7 +133,7 @@ void loop() {
   if(printSensorVal) {
     if(millis() - gLastMillis > 100) {
       gLastMillis += 100;
-      trillSensor.requestRawData(60);
+      trillSensor.requestRawData();
 
       if(trillSensor.rawDataAvailable() > 0) {
         while(trillSensor.rawDataAvailable() > 0) {
