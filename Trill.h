@@ -79,6 +79,8 @@ class Trill {
 
 		/* Initialise the hardware */
 		int begin(Device device, uint8_t i2c_address = 255);
+		/* Initialise the hardware, it's the same as begin() */
+		int setup(Device device, uint8_t i2c_address = 255) { return begin(device, i2c_address); }
 
 		/* --- Main communication --- */
 
