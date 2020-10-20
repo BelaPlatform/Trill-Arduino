@@ -35,7 +35,7 @@ void setup() {
 
 
   // Initialise Trill sensor
-  if(int ret = trill.begin(Trill::TRILL_CRAFT) != 0) {
+  if(int ret = trill.setup(Trill::TRILL_CRAFT) != 0) {
     Serial.println("Failed to initialise Trill device");
     Serial.print("Error code: ");
     Serial.println(ret);

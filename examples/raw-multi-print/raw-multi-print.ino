@@ -41,19 +41,19 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
 
-  if(trillBar.begin(Trill::TRILL_BAR) != 0)
+  if(trillBar.setup(Trill::TRILL_BAR) != 0)
     Serial.println("failed to initialise trill bar");
 
-  if(trillSquare.begin(Trill::TRILL_SQUARE) != 0)
+  if(trillSquare.setup(Trill::TRILL_SQUARE) != 0)
     Serial.println("failed to initialise trill square");
 
-  if(trillCraft.begin(Trill::TRILL_CRAFT) != 0)
+  if(trillCraft.setup(Trill::TRILL_CRAFT) != 0)
     Serial.println("failed to initialise trill craft");
 
-  if(trillRing.begin(Trill::TRILL_RING) != 0)
+  if(trillRing.setup(Trill::TRILL_RING) != 0)
     Serial.println("failed to initialise trill ring");
 
-  if(trillHex.begin(Trill::TRILL_HEX) != 0)
+  if(trillHex.setup(Trill::TRILL_HEX) != 0)
     Serial.println("failed to initialise trill hex");
 
   trillBar.setMode(Trill::DIFF);

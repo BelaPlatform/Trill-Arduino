@@ -78,7 +78,7 @@ bool printSensorVal = true;
 void setup() {
   // Initialise serial and touch sensor
   Serial.begin(115200);
-  int ret = trillSensor.begin(Trill::TRILL_CRAFT);
+  int ret = trillSensor.setup(Trill::TRILL_CRAFT);
   if(ret != 0) {
     Serial.println("failed to initialise trillSensor");
     Serial.println("Error code: ");
