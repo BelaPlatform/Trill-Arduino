@@ -91,6 +91,8 @@ void loop() {
 
   if(Serial.available() > 0) {
     serialInput = Serial.readStringUntil(gEndToken);
+    serialInput.toLowerCase();
+    serialInput.trim();
     if(serialInput == "t") {
       printSensorVal = !printSensorVal;
     } else {
