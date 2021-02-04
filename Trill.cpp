@@ -22,8 +22,7 @@
 
 Trill::Trill()
 : device_type_(TRILL_NONE), firmware_version_(0),
-  mode_(AUTO), last_read_loc_(0xFF), num_touches_(0),
-  raw_bytes_left_(0)
+  mode_(AUTO), last_read_loc_(0xFF), raw_bytes_left_(0)
 {
 }
 
@@ -66,6 +65,14 @@ int Trill::begin(Device device, uint8_t i2c_address) {
 	setMode(mode);
 	delay(interCommandDelay);
 
+	Touches::centroids = buffer_;
+	Touches::sizes = buffer_ + MAX_TOUCH_1D_OR_2D;
+	if(is2D()) {
+		horizontal.centroids = buffer_ + 2 * MAX_TOUCH_1D_OR_2D;
+		horizontal.sizes = buffer_ + 3 * MAX_TOUCH_1D_OR_2D;
+	} else
+		horizontal.num_touches = 0;
+
 	/* Set default scan settings */
 	setScanSettings(0, 12);
 	delay(interCommandDelay);
@@ -105,6 +112,8 @@ int Trill::identify() {
 
 /* Read the latest scan value from the sensor. Returns true on success. */
 boolean Trill::read() {
+	if(CENTROID != mode_)
+		return false;
 	uint8_t loc = 0;
 	uint8_t length = kCentroidLengthDefault;
 
@@ -118,34 +127,24 @@ boolean Trill::read() {
 		length = kCentroidLengthRing;
 
 	Wire.requestFrom(i2c_address_, length);
-	while(Wire.available()) {
-		buffer_[loc++] = Wire.read();
+	while(Wire.available() >= 2) {
+		uint8_t msb = Wire.read();
+		uint8_t lsb = Wire.read();
+		buffer_[loc] = lsb + (msb << 8);
+		++loc;
 	}
 
+	uint8_t maxNumCentroids = MAX_TOUCH_1D_OR_2D;
+	boolean ret = true;
 	/* Check for read error */
-	if(loc < length) {
-		num_touches_ = 0;
-		return false;
+	if(loc * 2 < length) {
+		maxNumCentroids = 0;
+		ret = false;
 	}
 
-	/* Look for the first instance of 0xFFFF (no touch)
-   	   in the buffer */
-	for(loc = 0; loc < MAX_TOUCH_1D_OR_2D; loc++) {
-		if(buffer_[2 * loc] == 0xFF && buffer_[2 * loc + 1] == 0xFF)
-			break;
-	}
-	num_touches_ = loc;
-
-	if(device_type_ == TRILL_SQUARE || device_type_ == TRILL_HEX) {
-		/* Look for the number of horizontal touches in 2D sliders
-		   which might be different from number of vertical touches */
-		for(loc = 0; loc < kMaxTouchNum2D; loc++) {
-			if(buffer_[2 * loc + 4 * kMaxTouchNum2D] == 0xFF && 
-			   buffer_[2 * loc + 4 * kMaxTouchNum2D + 1] == 0xFF)
-				break;
-		}
-		num_touches_ |= (loc << 4);
-	}
+	processCentroids(maxNumCentroids);
+	if(is2D())
+		horizontal.processCentroids(maxNumCentroids);
 
 	return true;
 }
@@ -158,83 +157,6 @@ void Trill::updateBaseline() {
 	Wire.endTransmission();
 
 	last_read_loc_ = kOffsetCommand;
-}
-
-/* How many touches? < 0 means error. */
-unsigned int Trill::getNumTouches() {
-	if(mode_ != CENTROID)
-		return 0;
-
-	/* Lower 4 bits hold number of 1-axis or vertical touches */
-	return (num_touches_ & 0x0F);
-}
-
-/* How many horizontal touches for 2D? */
-unsigned int Trill::getNumHorizontalTouches() {
-	if(!is2D())
-		return 0;
-
-	/* Upper 4 bits hold number of horizontal touches */
-	return (num_touches_ >> 4);
-}
-
-/* Location and size of a particular touch, ranging from 0 to N-1.
-   Returns -1 if no such touch exists. */
-int Trill::touchLocation(uint8_t touch_num) {
-	int result;
-
-	if(mode_ != CENTROID)
-		return -1;
-	if(touch_num >= MAX_TOUCH_1D_OR_2D)
-		return -1;
-
-	result = buffer_[2*touch_num] * 256;
-	result += buffer_[2*touch_num + 1];
-
-	return result;
-}
-
-int Trill::touchSize(uint8_t touch_num) {
-	int result;
-
-	if(mode_ != CENTROID)
-		return -1;
-	if(touch_num >= MAX_TOUCH_1D_OR_2D)
-		return -1;
-
-	result = buffer_[2*touch_num + 2*MAX_TOUCH_1D_OR_2D] * 256;
-	result += buffer_[2*touch_num + 2*MAX_TOUCH_1D_OR_2D + 1];
-
-	return result;
-}
-
-/* These methods for horizontal touches on 2D sliders */
-int Trill::touchHorizontalLocation(uint8_t touch_num) {
-	int result;
-
-	if(!is2D())
-		return -1;
-	if(touch_num >= kMaxTouchNum2D)
-		return -1;
-
-	result = buffer_[2*touch_num + 4*kMaxTouchNum2D] * 256;
-	result += buffer_[2*touch_num + 4*kMaxTouchNum2D + 1];
-
-	return result;
-}
-
-int Trill::touchHorizontalSize(uint8_t touch_num) {
-	int result;
-
-	if(!is2D())
-		return -1;
-	if(touch_num >= kMaxTouchNum2D)
-		return -1;
-
-	result = buffer_[2*touch_num + 6*kMaxTouchNum2D] * 256;
-	result += buffer_[2*touch_num + 6*kMaxTouchNum2D + 1];
-
-	return result;
 }
 
 /* Request raw data; wrappers for Wire */
@@ -305,6 +227,7 @@ void Trill::setMode(Mode mode) {
 
 	mode_ = mode;
 	last_read_loc_ = kOffsetCommand;
+	num_touches = 0;
 }
 
 void Trill::setScanSettings(uint8_t speed, uint8_t num_bits) {
@@ -437,4 +360,48 @@ bool Trill::is2D()
 		default:
 			return false;
 	}
+}
+
+uint8_t Touches::getNumTouches() const
+{
+	return num_touches;
+}
+
+int Touches::touchLocation(uint8_t touch_num) const
+{
+	if(touch_num < num_touches)
+		return centroids[touch_num];
+	else
+		return -1;
+}
+
+int Touches::touchSize(uint8_t touch_num) const
+{
+	if(touch_num < num_touches)
+		return sizes[touch_num];
+	else
+		return -1;
+}
+
+unsigned int Touches2D::getNumHorizontalTouches() {
+	return horizontal.getNumTouches();
+}
+
+void Touches::processCentroids(uint8_t maxCentroids) {
+	// Look for 1st instance of 0xFFFF (no touch) in the buffer
+	for(num_touches = 0; num_touches < maxCentroids; ++num_touches)
+	{
+		if(0xffff == centroids[num_touches])
+			break;// at the first non-touch, break
+	}
+	// now num_touches is the number of active touches in the array
+}
+
+/* These methods for horizontal touches on 2D sliders */
+int Touches2D::touchHorizontalLocation(uint8_t touch_num) {
+	return horizontal.touchLocation(touch_num);
+}
+
+int Touches2D::touchHorizontalSize(uint8_t touch_num) {
+	return horizontal.touchSize(touch_num);
 }

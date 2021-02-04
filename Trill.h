@@ -24,7 +24,36 @@
 #define TRILL_SPEED_SLOW	3
 
 
-class Trill {
+class Touches
+{
+public:
+	Touches() { num_touches = 0; };
+	typedef uint16_t TouchData_t;
+	/* How many touches? */
+	uint8_t getNumTouches() const;
+	/* Location and size of a particular touch, ranging from 0 to N-1.
+	   Returns -1 if no such touch exists. */
+	int touchLocation(uint8_t touch_num) const;
+	int touchSize(uint8_t touch_num) const;
+	void processCentroids(uint8_t maxCentroids);
+	TouchData_t const* centroids;
+	TouchData_t const* sizes;
+	uint8_t num_touches;/*  Number of touches. Updated by processCentroids() */
+};
+
+class Touches2D : public Touches
+{
+public:
+	unsigned int getNumHorizontalTouches();
+	int touchHorizontalLocation(uint8_t touch_num);
+	int touchHorizontalSize(uint8_t touch_num);
+protected:
+	Touches2D() {};
+	Touches horizontal;
+};
+
+class Trill : public Touches2D
+{
 	public:
 		Trill();
 
@@ -148,20 +177,6 @@ class Trill {
 		/* Button value for Ring? */
 		int getButtonValue(uint8_t button_num);
 
-		/* How many touches? */
-		unsigned int getNumTouches();
-		/* How many horizontal touches for 2D? */
-		unsigned int getNumHorizontalTouches();
-
-		/* Location and size of a particular touch, ranging from 0 to N-1.
-		   Returns -1 if no such touch exists. */
-		int touchLocation(uint8_t touch_num);
-		int touchSize(uint8_t touch_num);
-
-		/* These methods for horizontal touches on 2D sliders */
-		int touchHorizontalLocation(uint8_t touch_num);
-		int touchHorizontalSize(uint8_t touch_num);
-
 		/* --- Raw data handling --- */
 
 		/* Request raw data; wrappers for Wire */
@@ -228,10 +243,74 @@ class Trill {
 		uint8_t firmware_version_;	/* Firmware version running on the device */
 		Mode mode_;			/* Which mode the device is in */
 		uint8_t last_read_loc_;	/* Which byte reads will begin from on the device */
-		uint8_t num_touches_;	/* Number of touches on last read */
 		uint8_t raw_bytes_left_; /* How many bytes still remaining to request? */
 
-		uint8_t buffer_[kCentroidLength2D];	/* Buffer for standard response */
+		uint16_t buffer_[kCentroidLength2D * 2];/* Buffer for centroid response */
+};
+
+// first template argument is the max num of centroids
+// the second argument is the number of readings that will be processed at the
+// same time. This should be 0 if the data passed to process() is already ordered
+template <uint8_t _maxNumCentroids, uint8_t _numReadings>
+class CentroidDetection : public Touches
+{
+public:
+	typedef uint16_t WORD;
+	CentroidDetection() {};
+	CentroidDetection(const unsigned int* order);
+	int begin(const uint8_t* order) {
+		return setup(order);
+	}
+	// pass nullptr if the data passed to process() is already ordered.
+	int setup(const uint8_t* order) {
+		this->order = order;
+		Touches::centroids = this->centroids;
+		Touches::sizes = this->sizes;
+		num_touches = 0;
+	}
+	// second argument is the length of rawData, but it is ignored if
+	// order is not nullptr.
+	void process(const WORD* rawData, uint8_t numReadings = 0) {
+		uint8_t nr;
+
+		if(order) {
+			for(unsigned int n = 0; n < _numReadings; ++n) {
+				data[n] = rawData[order[n]];
+			}
+			cc.CSD_waSnsDiff = data;
+			nr = _numReadings;
+		} else {
+			// no reordering needed
+			cc.CSD_waSnsDiff = rawData;
+			nr = numReadings;
+		}
+		cc.calculateCentroids(centroids, sizes, _maxNumCentroids, 0, nr, nr);
+		processCentroids(_maxNumCentroids);
+	}
+
+	void setMinimumTouchSize(TouchData_t minSize) {
+		cc.wMinimumCentroidSize = minSize;
+	}
+private:
+	// a small helper class, whose main purpose is to wrap the #include
+	// and make all the variables related to it private and multi-instance safe
+	class CalculateCentroids
+	{
+	public:
+		typedef uint8_t BYTE;
+		WORD* CSD_waSnsDiff;
+		WORD wMinimumCentroidSize = 0;
+		BYTE SLIDER_BITS = 7;
+		WORD wAdjacentCentroidNoiseThreshold = 400; // Trough between peaks needed to identify two centroids
+		//WORD calculateCentroids(WORD *centroidBuffer, WORD *sizeBuffer, BYTE maxNumCentroids, BYTE minSensor, BYTE maxSensor, BYTE numSensors);
+		// calculateCentroids is defined here:
+	#include "calculateCentroids.h"
+	};
+	TouchData_t centroids[_maxNumCentroids];
+	TouchData_t sizes[_maxNumCentroids * 2];
+	const uint8_t* order;
+	WORD data[_numReadings];
+	CalculateCentroids cc;
 };
 
 #endif /* TRILL_H */
