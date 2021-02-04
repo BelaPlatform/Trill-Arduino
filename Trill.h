@@ -73,6 +73,7 @@ class Trill : public Touches2D
 			TRILL_CRAFT = 3,
 			TRILL_RING = 4,
 			TRILL_HEX = 5,
+			TRILL_FLEX = 6,
 			TRILL_NUM_DEVICES = 7
 		};
 
@@ -83,14 +84,15 @@ class Trill : public Touches2D
 			uint8_t address;
 		};
 
-		struct TrillDefaults trillDefaults[TRILL_NUM_DEVICES] = {
+		struct TrillDefaults trillDefaults[TRILL_NUM_DEVICES + 1] = {
 			{TRILL_NONE, AUTO, 0xFF},
 			{TRILL_UNKNOWN, AUTO, 0xFF},
 			{TRILL_BAR, CENTROID, 0x20},
 			{TRILL_SQUARE, CENTROID, 0x28},
 			{TRILL_CRAFT, DIFF, 0x30},
 			{TRILL_RING, CENTROID, 0x38},
-			{TRILL_HEX, CENTROID, 0x40}
+			{TRILL_HEX, CENTROID, 0x40},
+			{TRILL_FLEX, DIFF, 0x48},
 		};
 
 		static constexpr uint8_t interCommandDelay = 15;

@@ -343,6 +343,7 @@ bool Trill::is1D()
 		case TRILL_BAR:
 		case TRILL_RING:
 		case TRILL_CRAFT:
+		case TRILL_FLEX:
 			return true;
 		default:
 			return false;
