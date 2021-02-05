@@ -181,7 +181,7 @@ class Trill : public Touches2D
 		/* --- Raw data handling --- */
 
 		/* Request raw data; wrappers for Wire */
-		void requestRawData(uint8_t max_length = 0xFF);
+		boolean requestRawData(uint8_t max_length = 0xFF);
 		int rawDataAvailable();
 		int rawDataRead();
 

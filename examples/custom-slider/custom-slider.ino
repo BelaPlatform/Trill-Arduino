@@ -43,9 +43,12 @@ void setup() {
 }
 
 void loop() {
-  trillSensor.requestRawData();
   // Read 20 times per second
   delay(50);
+  if(!trillSensor.requestRawData()) {
+    Serial.println("Failed reading from device. Is it disconnected?");
+    return setup();
+  }
   unsigned n = 0;
   // read all the data from the device into a local buffer
   while(trillSensor.rawDataAvailable() > 0 && n < NUM_TOTAL_PADS) {

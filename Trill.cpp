@@ -160,7 +160,7 @@ void Trill::updateBaseline() {
 }
 
 /* Request raw data; wrappers for Wire */
-void Trill::requestRawData(uint8_t max_length) {
+boolean Trill::requestRawData(uint8_t max_length) {
 	uint8_t length = 0;
 
 	prepareForDataRead();
@@ -179,9 +179,16 @@ void Trill::requestRawData(uint8_t max_length) {
 		raw_bytes_left_ = 0;
 	}
 	else {
-		Wire.requestFrom(i2c_address_, (uint8_t)BUFFER_LENGTH);
-		raw_bytes_left_ = length - BUFFER_LENGTH;
+		int ret = Wire.requestFrom(i2c_address_, (uint8_t)BUFFER_LENGTH);
+		if(ret > 0)
+			raw_bytes_left_ = length - ret;
+		else {
+			// failed transmission. Device died?
+			raw_bytes_left_ = 0;
+			return false;
+		}
 	}
+	return true;
 }
 
 int Trill::rawDataAvailable() {
@@ -191,7 +198,6 @@ int Trill::rawDataAvailable() {
 
 /* Raw data is in 16-bit big-endian format */
 int Trill::rawDataRead() {
-	int result;
 
 	if(Wire.available() < 2) {
 		/* Read more bytes if we need it */
@@ -212,7 +218,7 @@ int Trill::rawDataRead() {
 			return 0;
 	}
 
-	result = (int)Wire.read() * 256;
+	int result = ((uint8_t)Wire.read()) << 8;
 	result += (int)Wire.read();
 	return result;
 }
