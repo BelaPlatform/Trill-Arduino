@@ -38,6 +38,8 @@ void setup() {
     Serial.println("failed to initialise trillSensor");
     Serial.print("Error code: ");
     Serial.println(ret);
+  } else {
+    Serial.println("Success initialising trillSensor");
   }
 }
 
@@ -46,11 +48,10 @@ void loop() {
   delay(50);
   trillSensor.read();
 
-  if(trillSensor.getNumTouches() > 0) {
+  if(trillSensor.getNumTouches() > 0 || trillSensor.getNumHorizontalTouches() > 0) {
+    Serial.print("V[");
     Serial.print(trillSensor.getNumTouches());
-    Serial.print(" ");
-    Serial.print(trillSensor.getNumHorizontalTouches());
-    Serial.print(" ");
+    Serial.print("]: ");
 
     for(int i = 0; i < trillSensor.getNumTouches(); i++) {
         Serial.print(trillSensor.touchLocation(i));
@@ -58,6 +59,10 @@ void loop() {
         Serial.print(trillSensor.touchSize(i));
         Serial.print(" ");
     }
+
+    Serial.print("H[");
+    Serial.print(trillSensor.getNumHorizontalTouches());
+    Serial.print("]: ");
     for(int i = 0; i < trillSensor.getNumHorizontalTouches(); i++) {
         Serial.print(trillSensor.touchHorizontalLocation(i));
         Serial.print(" ");
@@ -70,7 +75,7 @@ void loop() {
   }
   else if(touchActive) {
     // Print a single line when touch goes off
-    Serial.println("0 0");
+    Serial.println("V[0] H[0]");
     touchActive = false;
   }
 }
