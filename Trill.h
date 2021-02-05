@@ -23,7 +23,6 @@
 #define TRILL_SPEED_NORMAL    	2
 #define TRILL_SPEED_SLOW	3
 
-
 class Touches
 {
 public:
@@ -258,39 +257,40 @@ public:
 	typedef uint16_t WORD;
 	CentroidDetection() {};
 	CentroidDetection(const unsigned int* order);
-	int begin(const uint8_t* order) {
-		return setup(order);
+	int begin(const uint8_t* order, unsigned int numReadings) {
+		return setup(order, numReadings);
 	}
 	// pass nullptr if the data passed to process() is already ordered.
-	int setup(const uint8_t* order) {
+	int setup(const uint8_t* order, unsigned int orderLength) {
 		this->order = order;
 		Touches::centroids = this->centroids;
 		Touches::sizes = this->sizes;
 		num_touches = 0;
+		this->orderLength = orderLength;
+		if(orderLength > _numReadings)
+			return -1; // cannot work with more than _numReadings
+		return 0;
 	}
-	// second argument is the length of rawData, but it is ignored if
-	// order is not nullptr.
-	void process(const WORD* rawData, uint8_t numReadings = 0) {
-		uint8_t nr;
 
+	void process(const WORD* rawData) {
+		uint8_t nMax = _numReadings < orderLength ? _numReadings : orderLength;
 		if(order) {
-			for(unsigned int n = 0; n < _numReadings; ++n) {
+			for(unsigned int n = 0; n < nMax; ++n) {
 				data[n] = rawData[order[n]];
 			}
 			cc.CSD_waSnsDiff = data;
-			nr = _numReadings;
 		} else {
 			// no reordering needed
 			cc.CSD_waSnsDiff = rawData;
-			nr = numReadings;
 		}
-		cc.calculateCentroids(centroids, sizes, _maxNumCentroids, 0, nr, nr);
+		cc.calculateCentroids(centroids, sizes, _maxNumCentroids, 0, nMax, nMax);
 		processCentroids(_maxNumCentroids);
 	}
 
 	void setMinimumTouchSize(TouchData_t minSize) {
 		cc.wMinimumCentroidSize = minSize;
 	}
+
 private:
 	// a small helper class, whose main purpose is to wrap the #include
 	// and make all the variables related to it private and multi-instance safe
@@ -304,13 +304,15 @@ private:
 		WORD wAdjacentCentroidNoiseThreshold = 400; // Trough between peaks needed to identify two centroids
 		//WORD calculateCentroids(WORD *centroidBuffer, WORD *sizeBuffer, BYTE maxNumCentroids, BYTE minSensor, BYTE maxSensor, BYTE numSensors);
 		// calculateCentroids is defined here:
-	#include "calculateCentroids.h"
+		#include "calculateCentroids.h"
 	};
 	TouchData_t centroids[_maxNumCentroids];
 	TouchData_t sizes[_maxNumCentroids * 2];
 	const uint8_t* order;
+	unsigned int orderLength;
 	WORD data[_numReadings];
 	CalculateCentroids cc;
 };
 
+class CustomSlider : public CentroidDetection<5, 30> {};
 #endif /* TRILL_H */
