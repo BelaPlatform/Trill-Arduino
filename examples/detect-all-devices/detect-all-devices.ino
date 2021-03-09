@@ -69,6 +69,9 @@ void printDeviceType(int deviceType) {
     case Trill::TRILL_CRAFT:
       Serial.print("craft");
       break;
+    case Trill::TRILL_FLEX:
+      Serial.print("flex");
+      break;
     case Trill::TRILL_UNKNOWN:
       Serial.print("unknown");
       break;

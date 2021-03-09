@@ -26,6 +26,7 @@ the first column is the default address:
 | CRAFT  | 0x30 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 |
 | RING   | 0x38 0x39 0x3A 0x3B 0x3C 0x3D 0x3E 0x3F 0x40 |
 | HEX    | 0x40 0x41 0x42 0x43 0x44 0x45 0x46 0x47 0x48 |
+| FLEX   | 0x48 0x49 0x4A 0x4B 0x4C 0x4D 0x4E 0x4F 0x50 |
 
 In this example the sensor readings are printed to the console as raw values using the
 `rawDataRead()` method.
@@ -36,6 +37,8 @@ Trill trillSquare; // for Trill Square
 Trill trillCraft; // for Trill Craft
 Trill trillRing; // for Trill Ring
 Trill trillHex; // for Trill Hex
+Trill trillFlex; // for Trill Flex
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -56,11 +59,15 @@ void setup() {
   if(trillHex.setup(Trill::TRILL_HEX) != 0)
     Serial.println("failed to initialise trill hex");
 
+  if(trillFlex.setup(Trill::TRILL_FLEX) != 0)
+    Serial.println("failed to initialise trill flex");
+
   trillBar.setMode(Trill::DIFF);
   trillSquare.setMode(Trill::DIFF);
   trillCraft.setMode(Trill::DIFF);
   trillRing.setMode(Trill::DIFF);
   trillHex.setMode(Trill::DIFF);
+  trillFlex.setMode(Trill::DIFF);
 }
 
 void printLine(unsigned int n, char character = '_') {
@@ -120,6 +127,12 @@ void loop() {
   if(trillHex.rawDataAvailable() > 0) {
     Serial.print("HEX    ");
     printRawData(trillHex);
+  }
+
+  trillFlex.requestRawData();
+  if(trillFlex.rawDataAvailable() > 0) {
+    Serial.print("FLEX    ");
+    printRawData(trillFlex);
   }
 
   printLine(156, '_');

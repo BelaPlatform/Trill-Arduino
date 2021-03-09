@@ -69,6 +69,9 @@ void setup() {
     case Trill::TRILL_CRAFT:
       Serial.println("craft");
       break;
+  	case Trill::TRILL_FLEX:
+      Serial.print("flex");
+      break;
     case Trill::TRILL_UNKNOWN:
       Serial.println("unknown");
       break;
