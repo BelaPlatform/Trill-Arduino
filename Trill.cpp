@@ -100,7 +100,7 @@ int Trill::identify() {
 		/* Unexpected or no response; no valid device connected */
 		device_type_ = TRILL_NONE;
 		firmware_version_ = 0;
-		return device_type_;
+		return -1;
 	}
 
 	Wire.read();	// Discard first input
