@@ -18,17 +18,18 @@ The sensor is set to Centroid mode and 2D touch location and size
 printed to the serial port.
 
 The accompanying Processing sketch, `TrillSquareDisplay.pde`, listens for
-touch information on the Arduino serial port* and displays it in a
+touch information on the Arduino serial port and displays it in a
 render of a Trill Square.
-
-*NOTE: you may need to update the Processing port number (gPortNumber)
-to match that of your Arduino.
+You may need to update the Processing port number (gPortNumber)
+to match that of your Arduino and set `verbose = false` below in order to
+make the serial data parseable by the Processing sketch.
 */
 
 #include <Trill.h>
 
 Trill trillSensor;
 boolean touchActive = false;
+const boolean verbose = true; // set this to false to communicate to the Processing GUI via UART.
 
 void setup() {
   // Initialise serial and touch sensor
@@ -39,7 +40,8 @@ void setup() {
     Serial.print("Error code: ");
     Serial.println(ret);
   } else {
-    Serial.println("Success initialising trillSensor");
+    if(verbose)
+      Serial.println("Success initialising trillSensor");
   }
 }
 
@@ -49,9 +51,20 @@ void loop() {
   trillSensor.read();
 
   if(trillSensor.getNumTouches() > 0 || trillSensor.getNumHorizontalTouches() > 0) {
-    Serial.print("V[");
+    if(verbose)
+      Serial.print("V[");
     Serial.print(trillSensor.getNumTouches());
-    Serial.print("]: ");
+    if(verbose) {
+      Serial.print("] ");
+      Serial.print("H[");
+    }
+    else
+      Serial.print(" ");
+    Serial.print(trillSensor.getNumHorizontalTouches());
+    if(verbose)
+      Serial.print("] ");
+    else
+      Serial.print(" ");
 
     for(int i = 0; i < trillSensor.getNumTouches(); i++) {
         Serial.print(trillSensor.touchLocation(i));
@@ -59,10 +72,6 @@ void loop() {
         Serial.print(trillSensor.touchSize(i));
         Serial.print(" ");
     }
-
-    Serial.print("H[");
-    Serial.print(trillSensor.getNumHorizontalTouches());
-    Serial.print("]: ");
     for(int i = 0; i < trillSensor.getNumHorizontalTouches(); i++) {
         Serial.print(trillSensor.touchHorizontalLocation(i));
         Serial.print(" ");
@@ -75,7 +84,10 @@ void loop() {
   }
   else if(touchActive) {
     // Print a single line when touch goes off
-    Serial.println("V[0] H[0]");
+    if(verbose)
+      Serial.println("V[0] H[0]");
+    else
+      Serial.println("0 0");
     touchActive = false;
   }
 }
