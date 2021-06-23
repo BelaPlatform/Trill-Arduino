@@ -1,4 +1,3 @@
-
 #include <Trill.h>
 
 /*
@@ -60,7 +59,15 @@ void setup() {
     Serial.println("failed to initialise trill hex");
 
   if(trillFlex.setup(Trill::TRILL_FLEX) != 0)
+  {
     Serial.println("failed to initialise trill flex");
+  } else {
+    delay(10);
+    trillFlex.setPrescaler(4);
+    delay(10);
+    trillFlex.updateBaseline();
+    delay(10);
+  }
 
   trillBar.setMode(Trill::DIFF);
   trillSquare.setMode(Trill::DIFF);
