@@ -229,7 +229,7 @@ class Trill : public Touches2D
 
 		enum {
 			kNumChannelsBar = 26,
-			kNumChannelsRing = 28,
+			kNumChannelsRing = 30,
 			kNumChannelsMax = 30
 		};
 

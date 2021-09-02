@@ -329,7 +329,7 @@ int Trill::getButtonValue(uint8_t button_num)
 	if(device_type_ != TRILL_RING)
 		return -1;
 
-	return (((buffer_[4*MAX_TOUCH_1D_OR_2D+2*button_num] << 8) + buffer_[4*MAX_TOUCH_1D_OR_2D+2*button_num+1]) & 0x0FFF);
+	return buffer_[2 * MAX_TOUCH_1D_OR_2D + button_num];
 }
 
 unsigned int Trill::getNumChannels()
