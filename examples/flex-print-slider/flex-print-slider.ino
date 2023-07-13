@@ -48,6 +48,15 @@ void setup() {
   // Set the sensor into Centroid mode
   // The default for Trill Flex is Differential mode
   trillSensor.setMode(Trill::CENTROID);
+  delay(10);
+  // when the slider is connected we increase the
+  // prescaler to deal with the increased baseline
+  // capacitance it brings
+  trillSensor.setPrescaler(4);
+  delay(10);
+  // after any prescaler change, it's always good to update
+  // the baseline, too.
+  trillSensor.updateBaseline();
 }
 
 void loop() {
