@@ -146,7 +146,7 @@ boolean Trill::read() {
 	if(is2D())
 		horizontal.processCentroids(maxNumCentroids);
 
-	return true;
+	return ret;
 }
 
 /* Update the baseline value on the sensor */
