@@ -264,10 +264,6 @@ void Trill::setPrescaler(uint8_t prescaler) {
 }
 
 void Trill::setNoiseThreshold(uint8_t threshold) {
-	if(threshold > 255)
-		threshold = 255;
-	if(threshold < 0)
-		threshold = 0;
 	Wire.beginTransmission(i2c_address_);
 	Wire.write(kOffsetCommand);
 	Wire.write(kCommandNoiseThreshold);
