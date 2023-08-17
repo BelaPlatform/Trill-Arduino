@@ -37,8 +37,14 @@ void setup() {
 		Serial.print("Error code: ");
 		Serial.println(ret);
 	}
-  // trill flex prefers a prescaler value of 4
+  // when the slider is connected we increase the
+  // prescaler to deal with the increased baseline
+  // capacitance it brings
   trillSensor.setPrescaler(4);
+  delay(10);
+  // after any prescaler change, it's always good to update
+  // the baseline, too.
+  trillSensor.updateBaseline();
 }
 
 void loop() {
