@@ -108,9 +108,9 @@ class Trill : public Touches2D
 
 
 		/* Initialise the hardware */
-		int begin(Device device, uint8_t i2c_address = 255);
+		int begin(Device device, uint8_t i2c_address = 255, TwoWire* wire = &Wire);
 		/* Initialise the hardware, it's the same as begin() */
-		int setup(Device device, uint8_t i2c_address = 255) { return begin(device, i2c_address); }
+		int setup(Device device, uint8_t i2c_address = 255, TwoWire* wire = &Wire) { return begin(device, i2c_address, wire); }
 
 		/* --- Main communication --- */
 
@@ -238,6 +238,7 @@ class Trill : public Touches2D
 			kRawLengthHex = 60,
 			kRawLengthRing = 56
 		};
+		TwoWire* wire_;
 
 		uint8_t i2c_address_;	/* Address of this slider on I2C bus */
 		Device device_type_;	/* Which type of device is connected, if any */

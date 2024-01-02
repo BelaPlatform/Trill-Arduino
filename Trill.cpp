@@ -22,13 +22,14 @@
 
 Trill::Trill()
 : device_type_(TRILL_NONE), firmware_version_(0),
-  mode_(AUTO), last_read_loc_(0xFF), raw_bytes_left_(0)
+  mode_(AUTO), last_read_loc_(0xFF), raw_bytes_left_(0), wire_(&Wire)
 {
 }
 
 /* Initialise the hardware. Returns the type of device attached, or 0
    if none is attached. */
-int Trill::begin(Device device, uint8_t i2c_address) {
+int Trill::begin(Device device, uint8_t i2c_address, TwoWire* wire) {
+	wire_ = wire;
 
 	if(128 <= i2c_address)
 		i2c_address = trillDefaults[device+1].address;
@@ -41,7 +42,7 @@ int Trill::begin(Device device, uint8_t i2c_address) {
 	i2c_address_ = i2c_address;
 
 	/* Start I2C */
-	Wire.begin();
+	wire_->begin();
 
 	/* Check the type of device attached */
 	if(identify() != 0) {
@@ -85,27 +86,29 @@ int Trill::begin(Device device, uint8_t i2c_address) {
 
 /* Return the type of device attached, or 0 if none is attached. */
 int Trill::identify() {
-	Wire.beginTransmission(i2c_address_);
-	Wire.write(kOffsetCommand);
-	Wire.write(kCommandIdentify);
-	Wire.endTransmission();
+	wire_->beginTransmission(i2c_address_);
+	wire_->write(kOffsetCommand);
+	wire_->write(kCommandIdentify);
+	int ret = wire_->endTransmission();
+	if(ret)
+		return ret;
 
 	/* Give Trill time to process this command */
 	delay(25);
 
 	last_read_loc_ = kOffsetCommand;
-	Wire.requestFrom(i2c_address_, (uint8_t)3);
+	wire_->requestFrom(i2c_address_, (uint8_t)3);
 
-	if(Wire.available() < 3) {
+	if(wire_->available() < 3) {
 		/* Unexpected or no response; no valid device connected */
 		device_type_ = TRILL_NONE;
 		firmware_version_ = 0;
 		return -1;
 	}
 
-	Wire.read();	// Discard first input
-	device_type_ = (Device)Wire.read();
-	firmware_version_ = Wire.read();
+	wire_->read();	// Discard first input
+	device_type_ = (Device)wire_->read();
+	firmware_version_ = wire_->read();
 
 	return 0;
 }
@@ -126,10 +129,10 @@ boolean Trill::read() {
 	if(device_type_ == TRILL_RING)
 		length = kCentroidLengthRing;
 
-	Wire.requestFrom(i2c_address_, length);
-	while(Wire.available() >= 2) {
-		uint8_t msb = Wire.read();
-		uint8_t lsb = Wire.read();
+	wire_->requestFrom(i2c_address_, length);
+	while(wire_->available() >= 2) {
+		uint8_t msb = wire_->read();
+		uint8_t lsb = wire_->read();
 		buffer_[loc] = lsb + (msb << 8);
 		++loc;
 	}
@@ -151,10 +154,10 @@ boolean Trill::read() {
 
 /* Update the baseline value on the sensor */
 void Trill::updateBaseline() {
-	Wire.beginTransmission(i2c_address_);
-	Wire.write(kOffsetCommand);
-	Wire.write(kCommandBaselineUpdate);
-	Wire.endTransmission();
+	wire_->beginTransmission(i2c_address_);
+	wire_->write(kOffsetCommand);
+	wire_->write(kCommandBaselineUpdate);
+	wire_->endTransmission();
 
 	last_read_loc_ = kOffsetCommand;
 }
@@ -175,11 +178,11 @@ boolean Trill::requestRawData(uint8_t max_length) {
 	 * (BUFFER_LENGTH in Wire.h).
 	 * If so, split it into two reads. */
 	if(length <= BUFFER_LENGTH) {
-		Wire.requestFrom(i2c_address_, length);
+		wire_->requestFrom(i2c_address_, length);
 		raw_bytes_left_ = 0;
 	}
 	else {
-		int ret = Wire.requestFrom(i2c_address_, (uint8_t)BUFFER_LENGTH);
+		int ret = wire_->requestFrom(i2c_address_, (uint8_t)BUFFER_LENGTH);
 		if(ret > 0)
 			raw_bytes_left_ = length - ret;
 		else {
@@ -193,43 +196,43 @@ boolean Trill::requestRawData(uint8_t max_length) {
 
 int Trill::rawDataAvailable() {
 	/* Raw data items are 2 bytes long; return number of them available */
-	return ((Wire.available() + raw_bytes_left_) >> 1);
+	return ((wire_->available() + raw_bytes_left_) >> 1);
 }
 
 /* Raw data is in 16-bit big-endian format */
 int Trill::rawDataRead() {
 
-	if(Wire.available() < 2) {
+	if(wire_->available() < 2) {
 		/* Read more bytes if we need it */
 		if(raw_bytes_left_ > 0) {
 			/* Move read pointer on device */
-			Wire.beginTransmission(i2c_address_);
-			Wire.write(kOffsetData + BUFFER_LENGTH);
-			Wire.endTransmission();
+			wire_->beginTransmission(i2c_address_);
+			wire_->write(kOffsetData + BUFFER_LENGTH);
+			wire_->endTransmission();
 			last_read_loc_ = kOffsetData + BUFFER_LENGTH;
 
 			/* Now gather what's left */
-			Wire.requestFrom(i2c_address_, raw_bytes_left_);
+			wire_->requestFrom(i2c_address_, raw_bytes_left_);
 			raw_bytes_left_ = 0;
 		}
 
 		/* Check again if we've got anything... */
-		if(Wire.available() < 2)
+		if(wire_->available() < 2)
 			return 0;
 	}
 
-	int result = ((uint8_t)Wire.read()) << 8;
-	result += (int)Wire.read();
+	int result = ((uint8_t)wire_->read()) << 8;
+	result += (int)wire_->read();
 	return result;
 }
 
 /* Scan configuration settings */
 void Trill::setMode(Mode mode) {
-	Wire.beginTransmission(i2c_address_);
-	Wire.write(kOffsetCommand);
-	Wire.write(kCommandMode);
-	Wire.write(mode);
-	Wire.endTransmission();
+	wire_->beginTransmission(i2c_address_);
+	wire_->write(kOffsetCommand);
+	wire_->write(kCommandMode);
+	wire_->write(mode);
+	wire_->endTransmission();
 
 	mode_ = mode;
 	last_read_loc_ = kOffsetCommand;
@@ -243,64 +246,64 @@ void Trill::setScanSettings(uint8_t speed, uint8_t num_bits) {
 		num_bits = 9;
 	if(num_bits > 16)
 		num_bits = 16;
-	Wire.beginTransmission(i2c_address_);
-	Wire.write(kOffsetCommand);
-	Wire.write(kCommandScanSettings);
-	Wire.write(speed);
-	Wire.write(num_bits);
-	Wire.endTransmission();
+	wire_->beginTransmission(i2c_address_);
+	wire_->write(kOffsetCommand);
+	wire_->write(kCommandScanSettings);
+	wire_->write(speed);
+	wire_->write(num_bits);
+	wire_->endTransmission();
 
 	last_read_loc_ = kOffsetCommand;
 }
 
 void Trill::setPrescaler(uint8_t prescaler) {
-	Wire.beginTransmission(i2c_address_);
-	Wire.write(kOffsetCommand);
-	Wire.write(kCommandPrescaler);
-	Wire.write(prescaler);
-	Wire.endTransmission();
+	wire_->beginTransmission(i2c_address_);
+	wire_->write(kOffsetCommand);
+	wire_->write(kCommandPrescaler);
+	wire_->write(prescaler);
+	wire_->endTransmission();
 
 	last_read_loc_ = kOffsetCommand;
 }
 
 void Trill::setNoiseThreshold(uint8_t threshold) {
-	Wire.beginTransmission(i2c_address_);
-	Wire.write(kOffsetCommand);
-	Wire.write(kCommandNoiseThreshold);
-	Wire.write(threshold);
-	Wire.endTransmission();
+	wire_->beginTransmission(i2c_address_);
+	wire_->write(kOffsetCommand);
+	wire_->write(kCommandNoiseThreshold);
+	wire_->write(threshold);
+	wire_->endTransmission();
 
 	last_read_loc_ = kOffsetCommand;
 }
 
 void Trill::setIDACValue(uint8_t value) {
-	Wire.beginTransmission(i2c_address_);
-	Wire.write(kOffsetCommand);
-	Wire.write(kCommandIdac);
-	Wire.write(value);
-	Wire.endTransmission();
+	wire_->beginTransmission(i2c_address_);
+	wire_->write(kOffsetCommand);
+	wire_->write(kCommandIdac);
+	wire_->write(value);
+	wire_->endTransmission();
 
 	last_read_loc_ = kOffsetCommand;
 }
 
 void Trill::setMinimumTouchSize(uint16_t size) {
-	Wire.beginTransmission(i2c_address_);
-	Wire.write(kOffsetCommand);
-	Wire.write(kCommandMinimumSize);
-	Wire.write(size >> 8);
-	Wire.write(size & 0xFF);
-	Wire.endTransmission();
+	wire_->beginTransmission(i2c_address_);
+	wire_->write(kOffsetCommand);
+	wire_->write(kCommandMinimumSize);
+	wire_->write(size >> 8);
+	wire_->write(size & 0xFF);
+	wire_->endTransmission();
 
 	last_read_loc_ = kOffsetCommand;
 }
 
 void Trill::setAutoScanInterval(uint16_t interval) {
-	Wire.beginTransmission(i2c_address_);
-	Wire.write(kOffsetCommand);
-	Wire.write(kCommandAutoScanInterval);
-	Wire.write(interval >> 8);
-	Wire.write(interval & 0xFF);
-	Wire.endTransmission();
+	wire_->beginTransmission(i2c_address_);
+	wire_->write(kOffsetCommand);
+	wire_->write(kCommandAutoScanInterval);
+	wire_->write(interval >> 8);
+	wire_->write(interval & 0xFF);
+	wire_->endTransmission();
 
 	last_read_loc_ = kOffsetCommand;
 }
@@ -308,9 +311,9 @@ void Trill::setAutoScanInterval(uint16_t interval) {
 /* Prepare the device to read data if it is not already prepared */
 void Trill::prepareForDataRead() {
 	if(last_read_loc_ != kOffsetData) {
-		Wire.beginTransmission(i2c_address_);
-		Wire.write(kOffsetData);
-		Wire.endTransmission();
+		wire_->beginTransmission(i2c_address_);
+		wire_->write(kOffsetData);
+		wire_->endTransmission();
 
 		last_read_loc_ = kOffsetData;
 	}
