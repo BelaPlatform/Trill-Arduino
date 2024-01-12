@@ -156,7 +156,7 @@ void setup() {
   ret = Wire.setPins(47, 21);
   ret = bar.setup(Trill::TRILL_BAR);
   Serial.printf("bar.setup() returned %d\n\r", ret);
-  ret = square.setup(Trill::TRILL_SQUARE, 46);
+  ret = square.setup(Trill::TRILL_SQUARE);
   Serial.printf("square.setup() returned %d\n\r", ret);
   mouseBegin();
   midiBegin();
