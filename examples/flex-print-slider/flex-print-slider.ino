@@ -23,6 +23,8 @@ touch location and size of touches on the default Flexible Bar sensor.
 Touchese will be printed to the serial port for each of the 5 different
 simultaneous touches.
 
+You can find our Processing library for visualising here:
+https://github.com/BelaPlatform/trill-processing-library/
 The accompanying Processing sketch, `TrillFlexSlider.pde`, listens for
 touch information on the Arduino serial port* and displays it in a
 render of a Trill Flex.

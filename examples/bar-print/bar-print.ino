@@ -18,7 +18,9 @@ The sensor is set to Centroid mode and touch location and size
 printed to the serial port for each of the 5 different simultaneous
 touches.
 
-The accompanying Processing sketch, `TrillBarDisplay.pde`, listens for
+You can find our Processing library for visualising here:
+https://github.com/BelaPlatform/trill-processing-library/
+The accompanying Processing sketch, `TrillBar.pde`, listens for
 touch information on the Arduino serial port* and displays it in a
 render of a Trill Bar.
 
