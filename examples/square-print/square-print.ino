@@ -17,9 +17,12 @@ sensor using the Trill Arduino library.
 The sensor is set to Centroid mode and 2D touch location and size
 printed to the serial port.
 
-The accompanying Processing sketch, `TrillSquareDisplay.pde`, listens for
+You can find our Processing library for visualising here:
+https://github.com/BelaPlatform/trill-processing-library/
+The accompanying Processing sketch, `TrillSquare.pde`, listens for
 touch information on the Arduino serial port and displays it in a
 render of a Trill Square.
+
 You may need to update the Processing port number (gPortNumber)
 to match that of your Arduino and set `verbose = false` below in order to
 make the serial data parseable by the Processing sketch.
