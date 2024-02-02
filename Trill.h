@@ -152,6 +152,9 @@ class Trill : public Touches2D
 		/* Return the device type already identified */
 		Device deviceType() { return device_type_; };
 
+		/* Get the name of a given device */
+		static const char* getNameFromDevice(Device device);
+
 		/* Return firmware version */
 		int firmwareVersion() { return firmware_version_; }
 

@@ -113,6 +113,24 @@ int Trill::identify() {
 	return 0;
 }
 
+/* Get the name of a given device */
+const char* Trill::getNameFromDevice(Device device) {
+	switch(device) {
+	case TRILL_BAR:
+		return "Bar";
+	case TRILL_SQUARE:
+		return "Square";
+	case TRILL_RING:
+		return "Ring";
+	case TRILL_FLEX:
+		return "Flex";
+	case TRILL_HEX:
+		return "Hex";
+	default:
+		return "NO DEVICE";
+	}
+}
+
 /* Read the latest scan value from the sensor. Returns true on success. */
 boolean Trill::read() {
 	if(CENTROID != mode_)
