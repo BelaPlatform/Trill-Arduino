@@ -42,6 +42,8 @@ void setup() {
   // capacitance it brings
   trillSensor.setPrescaler(4);
   delay(10);
+  trillSensor.setNoiseThreshold(200);
+  delay(10);
   // after any prescaler change, it's always good to update
   // the baseline, too.
   trillSensor.updateBaseline();
