@@ -54,7 +54,7 @@ void setup() {
   // when the slider is connected we increase the
   // prescaler to deal with the increased baseline
   // capacitance it brings
-  trillSensor.setPrescaler(4);
+  trillSensor.setPrescaler(3);
   delay(10);
   trillSensor.setNoiseThreshold(200);
   delay(10);
