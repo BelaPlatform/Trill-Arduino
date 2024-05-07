@@ -79,7 +79,7 @@ int Trill::begin(Device device, uint8_t i2c_address, TwoWire* wire) {
 	delay(interCommandDelay);
 
 	updateBaseline();
-	delay(interCommandDelay); // not really needed, but it ensures the first command the user sends after calling setup() will be adequately timed. Hopefully this is not a source of confusion...
+	delay((firmware_version_ >= 3 ? 10 : 1) * interCommandDelay); // not really needed, but it ensures the first command the user sends after calling setup() will be adequately timed. Hopefully this is not a source of confusion...
 
 	return 0;
 }
