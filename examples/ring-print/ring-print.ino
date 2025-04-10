@@ -32,8 +32,8 @@ int prevButtonState[2] = { 0 , 0 };
 void setup() {
   // Initialise serial and touch sensor
   Serial.begin(115200);
-  int ret = trillSensor.setup(Trill::TRILL_RING);
-  if(ret != 0) {
+  int ret;
+  while((ret = trillSensor.setup(Trill::TRILL_RING))) {
     Serial.println("failed to initialise trillSensor");
     Serial.print("Error code: ");
     Serial.println(ret);

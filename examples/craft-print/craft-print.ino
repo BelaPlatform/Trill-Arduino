@@ -25,8 +25,8 @@ Trill trillSensor; // for Trill Craft
 void setup() {
 	// put your setup code here, to run once:
 	Serial.begin(115200);
-	int ret = trillSensor.setup(Trill::TRILL_CRAFT);
-	if(ret != 0) {
+	int ret;
+	while((ret = trillSensor.setup(Trill::TRILL_CRAFT))) {
 		Serial.println("failed to initialise trillSensor");
 		Serial.print("Error code: ");
 		Serial.println(ret);

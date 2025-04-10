@@ -53,9 +53,11 @@ void setup() {
   // Initialise serial and touch sensor
   Serial.begin(115200);
   int ret;
-  while(trillSensor.setup(Trill::TRILL_FLEX)) {
+  while((ret = trillSensor.setup(Trill::TRILL_FLEX))) {
     Serial.println("failed to initialise trillSensor");
     Serial.println("Retrying...");
+    Serial.println("Error code");
+    Serial.println(ret);
     delay(100);
   }
   Serial.println("Success initialising trillSensor");

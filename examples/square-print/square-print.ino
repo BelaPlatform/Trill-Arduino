@@ -37,15 +37,14 @@ const boolean verbose = true; // set this to false to communicate to the Process
 void setup() {
   // Initialise serial and touch sensor
   Serial.begin(115200);
-  int ret = trillSensor.setup(Trill::TRILL_SQUARE);
-  if(ret != 0) {
+  int ret;
+  while((ret = trillSensor.setup(Trill::TRILL_SQUARE))) {
     Serial.println("failed to initialise trillSensor");
     Serial.print("Error code: ");
     Serial.println(ret);
-  } else {
-    if(verbose)
-      Serial.println("Success initialising trillSensor");
   }
+  if(verbose)
+    Serial.println("Success initialising trillSensor");
 }
 
 void loop() {
