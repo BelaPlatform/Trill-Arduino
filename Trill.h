@@ -243,12 +243,12 @@ class Trill : public Touches2D
 		};
 		TwoWire* wire_;
 
-		uint8_t i2c_address_;	/* Address of this slider on I2C bus */
 		Device device_type_;	/* Which type of device is connected, if any */
-		uint8_t firmware_version_;	/* Firmware version running on the device */
 		Mode mode_;			/* Which mode the device is in */
+		uint8_t firmware_version_;	/* Firmware version running on the device */
 		uint8_t last_read_loc_;	/* Which byte reads will begin from on the device */
 		uint8_t raw_bytes_left_; /* How many bytes still remaining to request? */
+		uint8_t i2c_address_;	/* Address of this slider on I2C bus */
 
 		uint16_t buffer_[kCentroidLength2D * 2];/* Buffer for centroid response */
 };

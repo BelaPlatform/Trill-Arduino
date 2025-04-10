@@ -21,8 +21,8 @@
 			: 2 * kNumChannelsMax))
 
 Trill::Trill()
-: device_type_(TRILL_NONE), firmware_version_(0),
-  mode_(AUTO), last_read_loc_(0xFF), raw_bytes_left_(0), wire_(&Wire)
+: wire_(&Wire), device_type_(TRILL_NONE), mode_(AUTO),
+  firmware_version_(0), last_read_loc_(0xFF), raw_bytes_left_(0)
 {
 }
 
